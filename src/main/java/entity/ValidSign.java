@@ -7,4 +7,21 @@ package entity;
  * TODO 增加方法及实现 在分析表中遇到了该怎么做
  */
 public abstract class ValidSign {
+
+    /**
+     * 合法字符的表示
+     */
+    private String representation;
+
+    public ValidSign(String representation) {
+        this.representation = representation;
+    }
+
+    public String getRepresentation() {
+        return representation;
+    }
+
+    public void setRepresentation(String representation) {
+        this.representation = representation;
+    }
 }

@@ -7,20 +7,8 @@ package entity;
  */
 public class NonTerminal extends ValidSign {
 
-    /**
-     * 非终结符的表示，限定为单个字符
-     */
-    private char representation;
 
-    public NonTerminal(char representation) {
-        this.representation = representation;
-    }
-
-    public char getRepresentation() {
-        return representation;
-    }
-
-    public void setRepresentation(char representation) {
-        this.representation = representation;
+    public NonTerminal(String representation) {
+        super(representation);
     }
 }

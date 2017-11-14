@@ -4,7 +4,7 @@ import java.util.List;
 
 /**
  * Created by cuihua on 2017/11/14.
- *
+ * <p>
  * 表示文法的一条产生式
  */
 public class Production {
@@ -28,6 +28,26 @@ public class Production {
         this.left = left;
         this.right = right;
         this.indicator = 0;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(left.getRepresentation()).append(" -> ");
+        for (ValidSign sign : right) {
+            sb.append(sign.getRepresentation()).append(" ");
+        }
+        return sb.toString();
+    }
+
+    public Production moveForward(){
+        // 在最后就直接返回空
+        int curIndicator = this.getIndicator();
+        if (curIndicator == this.getRight().size()) return null;
+
+        Production result = new Production(this.left, this.right);
+        result.setIndicator(++curIndicator);
+        return result;
     }
 
     public NonTerminal getLeft() {

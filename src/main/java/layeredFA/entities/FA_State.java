@@ -1,6 +1,7 @@
 package layeredFA.entities;
 
 import entity.Production;
+import utilities.FA_StateIDController;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -27,8 +28,11 @@ public class FA_State {
      */
     private List<FA_Edge> follows;
 
-    public FA_State(int stateID, List<Production> productions) {
-        this.stateID = stateID;
+    public FA_State(List<Production> productions) {
+        int nowID = FA_StateIDController.getID();
+        this.stateID = nowID;
+        FA_StateIDController.setID(++nowID);
+
         this.productions = productions;
         this.follows = new LinkedList<>();
     }
