@@ -45,6 +45,7 @@ public class Production {
             if (i == indicator)sb.append("·");
             sb.append(right.get(i).getRepresentation()).append(" ");
         }
+        if (indicator == right.size()) sb.append("·");
         return sb.toString();
     }
 

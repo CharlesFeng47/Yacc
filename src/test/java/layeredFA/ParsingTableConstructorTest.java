@@ -4,6 +4,7 @@ import entity.NonTerminal;
 import entity.Production;
 import entity.Terminal;
 import entity.ValidSign;
+import layeredFA.entities.FA_State;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
@@ -31,6 +32,7 @@ public class ParsingTableConstructorTest {
     private List<Production> toTest2;
     private List<Production> toTest3;
     private List<Production> toTest4;
+    private List<Production> toTest5;
 
 
     @Before
@@ -103,6 +105,13 @@ public class ParsingTableConstructorTest {
         toTest4.add(toTestP5);
         toTest4.add(toTestP6);
 
+        // i·SeS
+        // S·;S
+        toTest5 = new LinkedList<>();
+        toTest5.add(toTestP5);
+        toTest5.add(toTestP3);
+
+
     }
 
     @After
@@ -137,30 +146,12 @@ try {
     }
 
     /**
-     * Method: innerStateExtension(FA_State nowState)
-     */
-    @Test
-    public void testInnerStateExtension() throws Exception {
-//TODO: Test goes here... 
-/* 
-try { 
-   Method method = ParsingTableConstructor.getClass().getMethod("innerStateExtension", FA_State.class); 
-   method.setAccessible(true); 
-   method.invoke(<Object>, <Parameters>); 
-} catch(NoSuchMethodException e) { 
-} catch(IllegalAccessException e) { 
-} catch(InvocationTargetException e) { 
-} 
-*/
-    }
-
-    /**
      * Method: closureProduction(List<Production> productions)
      */
     @Test
     public void testClosureProduction() throws Exception {
         try {
-            Method method = ParsingTableConstructor.class.getMethod("closureProduction", List.class);
+            Method method = ParsingTableConstructor.class.getDeclaredMethod("closureProduction", List.class);
             method.setAccessible(true);
 //            method.invoke(new ParsingTableConstructor(productions), toTest1);
 //            method.invoke(new ParsingTableConstructor(productions), toTest2);
@@ -176,17 +167,15 @@ try {
      */
     @Test
     public void testMove() throws Exception {
-//TODO: Test goes here... 
-/* 
-try { 
-   Method method = ParsingTableConstructor.getClass().getMethod("move", FA_State.class, String.class); 
-   method.setAccessible(true); 
-   method.invoke(<Object>, <Parameters>); 
-} catch(NoSuchMethodException e) { 
-} catch(IllegalAccessException e) { 
-} catch(InvocationTargetException e) { 
-} 
-*/
+        try {
+            FA_State faState = new FA_State(toTest5);
+
+            Method method = ParsingTableConstructor.class.getDeclaredMethod("move", FA_State.class, ValidSign.class);
+            method.setAccessible(true);
+//            method.invoke(new ParsingTableConstructor(productions), faState, new NonTerminal("S"));
+            method.invoke(new ParsingTableConstructor(productions), faState, new Terminal(";"));
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+        }
     }
 
     /**

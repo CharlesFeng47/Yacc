@@ -93,7 +93,7 @@ public class ParsingTableConstructor {
 
             // 处理此时的标记
             for (ValidSign vs : resultFA.getValidSign()) {
-                FA_State curFollowing = move(unhandled, vs.getRepresentation());
+                FA_State curFollowing = move(unhandled, vs);
                 int curFollowingSize = curFollowing.getProductions().size();
 
                 if (curFollowingSize != 0) {
@@ -127,7 +127,7 @@ public class ParsingTableConstructor {
     /**
      * 对产生式进行闭包
      */
-    public List<Production> closureProduction(List<Production> productions) {
+    private List<Production> closureProduction(List<Production> productions) {
         List<Production> result = new LinkedList<>();
         result.addAll(productions);
 
@@ -158,9 +158,10 @@ public class ParsingTableConstructor {
     }
 
     /**
-     * 将此状态以 label 后移
+     * 将此状态以 vs 后移
      */
-    private FA_State move(FA_State cur, String label) {
+    private FA_State move(FA_State cur, ValidSign vs) {
+        String label = vs.getRepresentation();
         List<Production> resultProduction = new LinkedList<>();
         for (Production p : cur.getProductions()) {
             ValidSign nextSign = p.getRight().get(p.getIndicator());
@@ -170,8 +171,12 @@ public class ParsingTableConstructor {
                 resultProduction.add(p.moveForward());
             }
         }
-
-        return new FA_State(resultProduction);
+        FA_State result = new FA_State(resultProduction);
+        logger.info("move 后继中产生式个数：" + result.getProductions().size());
+        for (Production p : resultProduction) {
+            logger.info(p.toString());
+        }
+        return result;
     }
 
     /**
