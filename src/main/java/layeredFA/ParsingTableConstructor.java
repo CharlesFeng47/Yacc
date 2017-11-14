@@ -5,6 +5,7 @@ import entity.Production;
 import entity.ValidSign;
 import layeredFA.entities.FA_State;
 import layeredFA.entities.LayeredFA;
+import org.apache.log4j.Logger;
 import utilities.ClosureRecursionHandler;
 
 import java.util.LinkedHashMap;
@@ -18,6 +19,8 @@ import java.util.Map;
  * 构造此文法的文法分析表
  */
 public class ParsingTableConstructor {
+
+    private static final Logger logger = Logger.getLogger(ParsingTableConstructor.class);
 
     /**
      * 此文法的所有起始产生式（indicator 为 0）
@@ -89,7 +92,7 @@ public class ParsingTableConstructor {
             if (hasStopped) break;
 
             // 处理此时的标记
-            for (ValidSign vs :resultFA.getValidSign()) {
+            for (ValidSign vs : resultFA.getValidSign()) {
                 FA_State curFollowing = move(unhandled, vs.getRepresentation());
                 int curFollowingSize = curFollowing.getProductions().size();
 
@@ -124,7 +127,7 @@ public class ParsingTableConstructor {
     /**
      * 对产生式进行闭包
      */
-    private List<Production> closureProduction(List<Production> productions) {
+    public List<Production> closureProduction(List<Production> productions) {
         List<Production> result = new LinkedList<>();
         result.addAll(productions);
 
@@ -140,12 +143,17 @@ public class ParsingTableConstructor {
                 List<Production> closure = getRelatedProduction((NonTerminal) nextSign);
                 for (Production cp : closure) {
                     if (!ClosureRecursionHandler.contain(cp)) {
-                        result.add(cp);
+                        List<Production> core = new LinkedList<>();
+                        core.add(cp);
+                        result.addAll(closureProduction(core));
                     }
                 }
             }
         }
-
+        for (Production p : result) {
+            logger.debug(p.toString());
+        }
+        logger.debug("\n");
         return result;
     }
 

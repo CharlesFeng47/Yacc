@@ -30,12 +30,20 @@ public class Production {
         this.indicator = 0;
     }
 
+    public Production(NonTerminal left, List<ValidSign> right, int indicator) {
+        this.left = left;
+        this.right = right;
+        this.indicator = indicator;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(left.getRepresentation()).append(" -> ");
-        for (ValidSign sign : right) {
-            sb.append(sign.getRepresentation()).append(" ");
+
+        for (int i = 0; i < right.size(); i++) {
+            if (i == indicator)sb.append("·");
+            sb.append(right.get(i).getRepresentation()).append(" ");
         }
         return sb.toString();
     }
