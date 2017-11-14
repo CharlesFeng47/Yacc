@@ -13,45 +13,20 @@ import java.util.*;
 
 /**
  * Created by cuihua on 2017/11/14.
- * <p>
- * 构造此文法的文法分析表
+ *
+ * 根据文法构建相应的有穷自动机
  */
-public class ParsingTableConstructor {
+public class FA_Constructor {
 
-    private static final Logger logger = Logger.getLogger(ParsingTableConstructor.class);
+    private static final Logger logger = Logger.getLogger(FA_Constructor.class);
 
     /**
      * 此文法的所有起始产生式（indicator 为 0）
      */
     final private List<Production> productions;
 
-    public ParsingTableConstructor(List<Production> productions) {
-        if (!isSingleStartLeft(productions)) {
-            // 新增开始符 & ，统领全局
-            NonTerminal newStartProLeft = new NonTerminal("&");
-
-            List<ValidSign> newStartProRight = new LinkedList<>();
-            newStartProRight.add(productions.get(0).getLeft());
-            Production newStartPro = new Production(newStartProLeft, newStartProRight);
-            productions.add(0, newStartPro);
-        }
-
+    public FA_Constructor(List<Production> productions) {
         this.productions = productions;
-    }
-
-    /**
-     * 检查 productions 中是不是开始符只出现了一次
-     */
-    private boolean isSingleStartLeft(List<Production> productions) {
-        NonTerminal startNT = productions.get(0).getLeft();
-        String startSign = startNT.getRepresentation();
-
-        int count = 0;
-        for (Production p : productions) {
-            if (p.getLeft().getRepresentation().equals(startSign)) count++;
-        }
-
-        return count == 1;
     }
 
     /**
@@ -246,3 +221,4 @@ public class ParsingTableConstructor {
         return result;
     }
 }
+
