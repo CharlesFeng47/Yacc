@@ -3,15 +3,13 @@ package layeredFA;
 import entity.NonTerminal;
 import entity.Production;
 import entity.ValidSign;
+import layeredFA.entities.FA_Edge;
 import layeredFA.entities.FA_State;
 import layeredFA.entities.LayeredFA;
 import org.apache.log4j.Logger;
 import utilities.ClosureRecursionHandler;
 
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by cuihua on 2017/11/14.
@@ -67,16 +65,17 @@ public class ParsingTableConstructor {
         // 以开始符的闭包集合开始
         FA_State startState = new FA_State(startProduction);
         startState.setProductions(closureProduction(startState.getProductions()));
-
-        LayeredFA resultFA = new LayeredFA(startState, getAllValidSigns());
-
-        // dStates为<闭包, 已标记>，LinkedHashMap保证为顺序而不是 hash 过的
-        Map<FA_State, Boolean> dStates = new LinkedHashMap<>();
-        dStates.put(resultFA.getStart(), false);
-
         // 清理当前节点计算 innerStateExtension 时的递归现场
         ClosureRecursionHandler.reset();
 
+        LayeredFA resultFA = new LayeredFA(startState, getAllValidSigns());
+
+        // <产生式闭包, 闭包 FA_State>
+        Map<List<String>, FA_State> productionStateMap = new HashMap<>();
+
+        // dStates为<闭包 FA_State, 已标记>，LinkedHashMap保证为顺序而不是 hash 过的
+        Map<FA_State, Boolean> dStates = new LinkedHashMap<>();
+        dStates.put(resultFA.getStart(), false);
         while (true) {
             // dStates中是否还有未标记的状态，并对未标记的状态进行处理
             boolean hasStopped = true;
@@ -107,23 +106,28 @@ public class ParsingTableConstructor {
                     // 清理当前节点计算 innerStateExtension 时的递归现场
                     ClosureRecursionHandler.reset();
 
-                    // 排序后对比，判断此集合是都在dStates中
+                    // 判断此集合是都在 dStates 中，如不在则需更进一步处理
                     if (!isInDSates(dStates, curFollowingPros)) {
-                        dStates.put(new FA_State(curFollowingPros), false);
+                        FA_State nextState = new FA_State(curFollowingPros);
+                        dStates.put(nextState, false);
+
+                        // 将此 FA_State 加入与产生式的映射
+                        productionStateMap.put(convertProductionsToStrings(curFollowingPros), nextState);
+
+                        // 加入链接
+                        FA_Edge edge = new FA_Edge(vs, nextState);
+                        unhandled.getFollows().add(edge);
+                    } else {
+                        // 直接加入链接
+                        FA_State representState = productionStateMap.get(convertProductionsToStrings(curFollowingPros));
+                        FA_Edge edge = new FA_Edge(vs, representState);
+                        unhandled.getFollows().add(edge);
                     }
                 }
             }
         }
         logger.debug("dStates 中状态数目：" + dStates.entrySet().size());
         return resultFA;
-    }
-
-    /**
-     * 计算当前节点的ε闭包 ε-innerStateExtension inner state extension 之后的节点
-     */
-    private FA_State innerStateExtension(FA_State nowState) {
-        nowState.setProductions(closureProduction(nowState.getProductions()));
-        return nowState;
     }
 
     /**

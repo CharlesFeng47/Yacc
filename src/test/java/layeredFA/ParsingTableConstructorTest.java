@@ -150,12 +150,10 @@ public class ParsingTableConstructorTest {
     @Test
     public void testMove() throws Exception {
         try {
-            FA_State faState = new FA_State(toTest5);
-
-            Method method = ParsingTableConstructor.class.getDeclaredMethod("move", FA_State.class, ValidSign.class);
+            Method method = ParsingTableConstructor.class.getDeclaredMethod("move", List.class, ValidSign.class);
             method.setAccessible(true);
-//            method.invoke(new ParsingTableConstructor(productions), faState, new NonTerminal("S"));
-            method.invoke(new ParsingTableConstructor(productions), faState, new Terminal(";"));
+//            method.invoke(new ParsingTableConstructor(productions), toTest5, new NonTerminal("S"));
+            method.invoke(new ParsingTableConstructor(productions), toTest5, new Terminal(";"));
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
         }
     }
