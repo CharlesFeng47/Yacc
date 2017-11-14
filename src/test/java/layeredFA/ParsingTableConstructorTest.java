@@ -123,27 +123,9 @@ public class ParsingTableConstructorTest {
      */
     @Test
     public void testParse() throws Exception {
-//TODO: Test goes here... 
+        new ParsingTableConstructor(productions).parse();
     }
 
-
-    /**
-     * Method: isSingleStartLeft(List<Production> productions)
-     */
-    @Test
-    public void testIsSingleStartLeft() throws Exception {
-//TODO: Test goes here... 
-/* 
-try { 
-   Method method = ParsingTableConstructor.getClass().getMethod("isSingleStartLeft", List<Production>.class); 
-   method.setAccessible(true); 
-   method.invoke(<Object>, <Parameters>); 
-} catch(NoSuchMethodException e) { 
-} catch(IllegalAccessException e) { 
-} catch(InvocationTargetException e) { 
-} 
-*/
-    }
 
     /**
      * Method: closureProduction(List<Production> productions)
@@ -179,57 +161,16 @@ try {
     }
 
     /**
-     * Method: isInDSates(Map<FA_State, Boolean> dStates, FA_State state)
-     */
-    @Test
-    public void testIsInDSates() throws Exception {
-//TODO: Test goes here... 
-/* 
-try { 
-   Method method = ParsingTableConstructor.getClass().getMethod("isInDSates", Map<FA_State,.class, FA_State.class); 
-   method.setAccessible(true); 
-   method.invoke(<Object>, <Parameters>); 
-} catch(NoSuchMethodException e) { 
-} catch(IllegalAccessException e) { 
-} catch(InvocationTargetException e) { 
-} 
-*/
-    }
-
-    /**
-     * Method: getRelatedProduction(NonTerminal nonTerminal)
-     */
-    @Test
-    public void testGetRelatedProduction() throws Exception {
-//TODO: Test goes here... 
-/* 
-try { 
-   Method method = ParsingTableConstructor.getClass().getMethod("getRelatedProduction", NonTerminal.class); 
-   method.setAccessible(true); 
-   method.invoke(<Object>, <Parameters>); 
-} catch(NoSuchMethodException e) { 
-} catch(IllegalAccessException e) { 
-} catch(InvocationTargetException e) { 
-} 
-*/
-    }
-
-    /**
      * Method: getAllValidSigns()
      */
     @Test
     public void testGetAllValidSigns() throws Exception {
-//TODO: Test goes here... 
-/* 
-try { 
-   Method method = ParsingTableConstructor.getClass().getMethod("getAllValidSigns"); 
-   method.setAccessible(true); 
-   method.invoke(<Object>, <Parameters>); 
-} catch(NoSuchMethodException e) { 
-} catch(IllegalAccessException e) { 
-} catch(InvocationTargetException e) { 
-} 
-*/
+        try {
+            Method method = ParsingTableConstructor.class.getDeclaredMethod("getAllValidSigns");
+            method.setAccessible(true);
+            method.invoke(new ParsingTableConstructor(productions));
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+        }
     }
 
 } 

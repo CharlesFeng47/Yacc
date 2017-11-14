@@ -28,7 +28,7 @@ public class ParsingTableConstructor {
     final private List<Production> productions;
 
     public ParsingTableConstructor(List<Production> productions) {
-        if (isSingleStartLeft(productions)) {
+        if (!isSingleStartLeft(productions)) {
             // 新增开始符 & ，统领全局
             NonTerminal newStartProLeft = new NonTerminal("&");
 
@@ -64,13 +64,15 @@ public class ParsingTableConstructor {
         List<Production> startProduction = new LinkedList<>();
         startProduction.add(productions.get(0));
 
+        // 以开始符的闭包集合开始
         FA_State startState = new FA_State(startProduction);
+        startState.setProductions(closureProduction(startState.getProductions()));
 
         LayeredFA resultFA = new LayeredFA(startState, getAllValidSigns());
 
         // dStates为<闭包, 已标记>，LinkedHashMap保证为顺序而不是 hash 过的
         Map<FA_State, Boolean> dStates = new LinkedHashMap<>();
-        dStates.put(innerStateExtension(resultFA.getStart()), false);
+        dStates.put(resultFA.getStart(), false);
 
         // 清理当前节点计算 innerStateExtension 时的递归现场
         ClosureRecursionHandler.reset();
@@ -93,34 +95,34 @@ public class ParsingTableConstructor {
 
             // 处理此时的标记
             for (ValidSign vs : resultFA.getValidSign()) {
-                FA_State curFollowing = move(unhandled, vs);
-                int curFollowingSize = curFollowing.getProductions().size();
+                List<Production> curFollowingPros = move(unhandled.getProductions(), vs);
+                int curFollowingSize = curFollowingPros.size();
 
                 if (curFollowingSize != 0) {
                     // 否则此状态此字符上无后继状态
 
                     // 保存当前要计算闭包的核
-                    curFollowing = innerStateExtension(curFollowing);
+                    curFollowingPros = closureProduction(curFollowingPros);
 
                     // 清理当前节点计算 innerStateExtension 时的递归现场
                     ClosureRecursionHandler.reset();
 
                     // 排序后对比，判断此集合是都在dStates中
-                    if (!isInDSates(dStates, curFollowing)) {
-                        dStates.put(curFollowing, false);
+                    if (!isInDSates(dStates, curFollowingPros)) {
+                        dStates.put(new FA_State(curFollowingPros), false);
                     }
                 }
             }
         }
-
-        return null;
+        logger.debug("dStates 中状态数目：" + dStates.entrySet().size());
+        return resultFA;
     }
 
     /**
      * 计算当前节点的ε闭包 ε-innerStateExtension inner state extension 之后的节点
      */
     private FA_State innerStateExtension(FA_State nowState) {
-        nowState.getProductions().addAll(closureProduction(nowState.getProductions()));
+        nowState.setProductions(closureProduction(nowState.getProductions()));
         return nowState;
     }
 
@@ -158,43 +160,59 @@ public class ParsingTableConstructor {
     }
 
     /**
-     * 将此状态以 vs 后移
+     * 将此表达式集合以 vs 后移
      */
-    private FA_State move(FA_State cur, ValidSign vs) {
+    private List<Production> move(List<Production> curPro, ValidSign vs) {
         String label = vs.getRepresentation();
+
         List<Production> resultProduction = new LinkedList<>();
-        for (Production p : cur.getProductions()) {
+        for (Production p : curPro) {
+            // 表示此条表达式已到达末尾，不能再后继
+            if (p.getIndicator() == p.getRight().size()) continue;
+
             ValidSign nextSign = p.getRight().get(p.getIndicator());
-            // null 表示此条表达式已到达末尾，不能再后继
-            if (nextSign == null) continue;
             if (nextSign.getRepresentation().equals(label)) {
                 resultProduction.add(p.moveForward());
             }
         }
-        FA_State result = new FA_State(resultProduction);
-        logger.info("move 后继中产生式个数：" + result.getProductions().size());
+
+        logger.info("move 后继中产生式个数：" + resultProduction.size());
         for (Production p : resultProduction) {
             logger.info(p.toString());
         }
-        return result;
+        return resultProduction;
     }
 
     /**
-     * 判断 state 是否已经在 dStates 中了
+     * 判断 pros 是否已经在 dStates 中某个 FA_State 的表达式列表中了
      */
-    private boolean isInDSates(Map<FA_State, Boolean> dStates, FA_State state) {
+    private boolean isInDSates(Map<FA_State, Boolean> dStates, List<Production> toTestProductions) {
         for (Map.Entry<FA_State, Boolean> entry : dStates.entrySet()) {
             List<Production> curProductions = entry.getKey().getProductions();
-            if (curProductions.size() == state.getProductions().size()) {
-                List<Production> newList = new LinkedList<>();
-                newList.addAll(state.getProductions());
-                newList.removeAll(curProductions);
+            if (curProductions.size() == toTestProductions.size()) {
+                List<String> curProductionsString = convertProductionsToStrings(curProductions);
+                List<String> toTestProductionsString = convertProductionsToStrings(toTestProductions);
+
+                List<String> newList = new LinkedList<>();
+                newList.addAll(toTestProductionsString);
+                newList.removeAll(curProductionsString);
 
                 // 找到已经存在的状态
                 if (newList.size() == 0) return true;
             }
         }
         return false;
+    }
+
+    /**
+     * 将表达式转换为 String 格式便于比较
+     */
+    private List<String> convertProductionsToStrings(List<Production> ps) {
+        List<String> result = new LinkedList<>();
+        for (Production p : ps) {
+            result.add(p.toString());
+        }
+        return result;
     }
 
     /**
@@ -220,6 +238,7 @@ public class ParsingTableConstructor {
                 if (!result.contains(vs)) result.add(vs);
             }
         }
+        logger.debug("ValidSigns Size：" + result.size());
         return result;
     }
 }
