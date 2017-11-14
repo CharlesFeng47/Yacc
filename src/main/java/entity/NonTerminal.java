@@ -3,24 +3,24 @@ package entity;
 /**
  * Created by cuihua on 2017/11/14.
  * <p>
- * 非终结符
+ * 非终结符【大写】
  */
 public class NonTerminal extends ValidSign {
 
     /**
-     * 非终结符的表示，可能存在多个字符（如 if ）
+     * 非终结符的表示，限定为单个字符
      */
-    private String repre;
+    private char representation;
 
-    public NonTerminal(String repre) {
-        this.repre = repre;
+    public NonTerminal(char representation) {
+        this.representation = representation;
     }
 
-    public String getRepre() {
-        return repre;
+    public char getRepresentation() {
+        return representation;
     }
 
-    public void setRepre(String repre) {
-        this.repre = repre;
+    public void setRepresentation(char representation) {
+        this.representation = representation;
     }
 }

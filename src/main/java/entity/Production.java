@@ -24,6 +24,12 @@ public class Production {
      */
     private int indicator;
 
+    public Production(NonTerminal left, List<ValidSign> right) {
+        this.left = left;
+        this.right = right;
+        this.indicator = 0;
+    }
+
     public NonTerminal getLeft() {
         return left;
     }
@@ -38,5 +44,13 @@ public class Production {
 
     public void setRight(List<ValidSign> right) {
         this.right = right;
+    }
+
+    public int getIndicator() {
+        return indicator;
+    }
+
+    public void setIndicator(int indicator) {
+        this.indicator = indicator;
     }
 }
