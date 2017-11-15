@@ -23,10 +23,16 @@ public class FA_Constructor {
     /**
      * 此文法的所有起始产生式（indicator 为 0）
      */
-    final private List<Production> productions;
+    private final List<Production> productions;
 
-    public FA_Constructor(List<Production> productions) {
+    /**
+     * 所有的合法标记
+     */
+    private List<ValidSign> validSigns;
+
+    public FA_Constructor(List<Production> productions, List<ValidSign> validSign) {
         this.productions = productions;
+        this.validSigns = validSign;
     }
 
     /**
@@ -43,7 +49,7 @@ public class FA_Constructor {
         // 清理当前节点计算 innerStateExtension 时的递归现场
         ClosureRecursionHandler.reset();
 
-        LayeredFA resultFA = new LayeredFA(startState, getAllValidSigns());
+        LayeredFA resultFA = new LayeredFA(startState, validSigns);
 
         // <产生式闭包, 闭包 FA_State>
         Map<List<String>, FA_State> productionStateMap = new HashMap<>();
@@ -85,6 +91,7 @@ public class FA_Constructor {
                     if (!isInDSates(dStates, curFollowingPros)) {
                         FA_State nextState = new FA_State(curFollowingPros);
                         dStates.put(nextState, false);
+                        resultFA.getStates().add(nextState);
 
                         // 将此 FA_State 加入与产生式的映射
                         productionStateMap.put(convertProductionsToStrings(curFollowingPros), nextState);
@@ -101,7 +108,7 @@ public class FA_Constructor {
                 }
             }
         }
-        logger.debug("dStates 中状态数目：" + dStates.entrySet().size());
+        logger.debug("产生式拓展之后状态数目：" + resultFA.getStates().size());
         return resultFA;
     }
 
@@ -204,20 +211,6 @@ public class FA_Constructor {
                 result.add(p);
             }
         }
-        return result;
-    }
-
-    /**
-     * 获取所有的合法字符，相当于字母表
-     */
-    private List<ValidSign> getAllValidSigns() {
-        List<ValidSign> result = new LinkedList<>();
-        for (Production p : productions) {
-            for (ValidSign vs : p.getRight()) {
-                if (!result.contains(vs)) result.add(vs);
-            }
-        }
-        logger.debug("ValidSigns Size：" + result.size());
         return result;
     }
 }

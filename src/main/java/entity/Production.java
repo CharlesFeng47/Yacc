@@ -42,14 +42,28 @@ public class Production {
         sb.append(left.getRepresentation()).append(" -> ");
 
         for (int i = 0; i < right.size(); i++) {
-            if (i == indicator)sb.append("·");
+            if (i == indicator) sb.append("·");
             sb.append(right.get(i).getRepresentation()).append(" ");
         }
         if (indicator == right.size()) sb.append("·");
         return sb.toString();
     }
 
-    public Production moveForward(){
+    /**
+     *
+     * @return 没有小圆点标记的产生式
+     */
+    public String toSimpleString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(left.getRepresentation()).append(" -> ");
+
+        for (ValidSign vs : right) {
+            sb.append(vs.getRepresentation()).append(" ");
+        }
+        return sb.toString();
+    }
+
+    public Production moveForward() {
         // 在最后就直接返回空
         int curIndicator = this.getIndicator();
         if (curIndicator == this.getRight().size()) return null;

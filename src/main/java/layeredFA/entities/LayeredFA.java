@@ -2,6 +2,7 @@ package layeredFA.entities;
 
 import entity.ValidSign;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -17,6 +18,11 @@ public class LayeredFA {
     private FA_State start;
 
     /**
+     * 所有状态
+     */
+    private List<FA_State> states;
+
+    /**
      * 所有的合法标记
      */
     private List<ValidSign> validSign;
@@ -24,6 +30,9 @@ public class LayeredFA {
     public LayeredFA(FA_State start, List<ValidSign> validSign) {
         this.start = start;
         this.validSign = validSign;
+
+        this.states = new LinkedList<>();
+        states.add(start);
     }
 
     public FA_State getStart() {
@@ -32,6 +41,14 @@ public class LayeredFA {
 
     public void setStart(FA_State start) {
         this.start = start;
+    }
+
+    public List<FA_State> getStates() {
+        return states;
+    }
+
+    public void setStates(List<FA_State> states) {
+        this.states = states;
     }
 
     public List<ValidSign> getValidSign() {
