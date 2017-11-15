@@ -14,10 +14,7 @@ import utilities.ActionType;
 import yacc.entities.Action;
 import yacc.entities.ParsingTable;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by cuihua on 2017/11/14.
@@ -86,7 +83,7 @@ public class ParsingTableConstructor {
 
     // TODO S->A->A，未测试
     private void initFirstMap() {
-        this.firstMap = new HashMap<>();
+        this.firstMap = new LinkedHashMap<>();
 
         // 计算所有的终结符 FIRST，并将所有非终结符加入集合 needToHandle
         List<NonTerminal> needToHandle = new LinkedList<>();
@@ -113,7 +110,7 @@ public class ParsingTableConstructor {
                     List<Terminal> result = new LinkedList<>();
 
                     NonTerminal nt = needToHandle.get(i);
-                    List<Production> relatedProduction = getRelatedProduction(nt);
+                    List<Production> relatedProduction = getRelatedProductionWithLeft(nt);
 
                     // 检查该 FIRST 是否依赖于别的非终结符
                     boolean isDependent = false;
@@ -125,7 +122,7 @@ public class ParsingTableConstructor {
                     }
 
                     if (isDependent) {
-                        if (hasCycle(nt)) {
+                        if (hasCycleFirst(nt)) {
                             // 循环依赖，延后处理
                             i++;
                             continue;
@@ -194,7 +191,7 @@ public class ParsingTableConstructor {
 
                     List<Production> related = new LinkedList<>();
                     for (NonTerminal temp : handling) {
-                        List<Production> curRelated = getRelatedProduction(temp);
+                        List<Production> curRelated = getRelatedProductionWithLeft(temp);
                         related.removeAll(curRelated);
                         related.addAll(curRelated);
                     }
@@ -221,8 +218,11 @@ public class ParsingTableConstructor {
         }
     }
 
+    /**
+     * B = ∂Aß，计算 FOLLOW(B)
+     */
     private void initFollowMap() {
-        this.followMap = new HashMap<>();
+        this.followMap = new LinkedHashMap<>();
 
         // 起始符的 FOLLOW  加入 $
         Terminal finalTerminal = new Terminal("$");
@@ -231,42 +231,98 @@ public class ParsingTableConstructor {
         followMap.put(productions.get(0).getLeft().getRepresentation(), startNonTerminalFollow);
 
         // 计算所有的非终结符 FOLLOW
+        List<NonTerminal> needToHandle = new LinkedList<>();
         for (ValidSign vs : validSigns) {
-            if (vs instanceof NonTerminal) {
-                List<Terminal> result = new LinkedList<>();
-                for (Production p : getRelatedProduction((NonTerminal) vs)) {
-                    List<ValidSign> right = p.getRight();
-                    int index = containNT(right, (NonTerminal) vs);
-                    if (index != -1) {
-                        if (index == right.size() - 1) {
+            if (vs instanceof NonTerminal) needToHandle.add((NonTerminal) vs);
+        }
+
+        while (true) {
+            if (needToHandle.size() == 0 && firstMap.size() == validSigns.size()) {
+                break;
+            }
+
+            // 遍历每一个非终结符，每次都处理自己可以处理的（非循环的）
+            while (true) {
+                boolean hasNewHandledTerminal = false;
+                for (int i = 0; i < needToHandle.size(); ) {
+
+                    List<Terminal> result = new LinkedList<>();
+
+                    NonTerminal nt = needToHandle.get(i);
+                    List<Production> relatedProduction = getRelatedProductionWithRight(nt);
+
+                    if (hasCycleFollow(nt)) {
+                        // 有循环，延后处理
+                        i++;
+                        continue;
+                    }
+
+                    for (Production p : relatedProduction) {
+                        List<ValidSign> right = p.getRight();
+                        int ntIndex = containNT(right, nt);
+
+                        assert ntIndex != -1;
+                        if (ntIndex == right.size() - 1) {
                             // ß = ε
-                            List<Terminal> followA = getFollow((NonTerminal) right.get(index));
-                            result.removeAll(followA);
-                            result.addAll(followA);
+                            List<Terminal> leftFollow = followMap.get(p.getLeft().getRepresentation());
+                            result.removeAll(leftFollow);
+                            result.addAll(leftFollow);
                         } else {
                             // ß != ε
-                            if (canDeriveToNull(right.get(index + 1))) {
+                            boolean deriveToNull = false;
+                            List<Terminal> nextFirst = firstMap.get(right.get(ntIndex + 1).getRepresentation());
+                            for (Terminal t : nextFirst) {
+                                if (t.getRepresentation().equals("ε")) deriveToNull = true;
+                            }
+
+                            if (deriveToNull) {
                                 // ß can derive ε
 
+                                // 移除 ε，得到 FIRST(A)-{ε}
+                                for (int j = 0; j < nextFirst.size(); j++) {
+                                    if (nextFirst.get(j).getRepresentation().equals("ε")) {
+                                        nextFirst.remove(j);
+                                        break;
+                                    }
+                                }
+                                result.removeAll(nextFirst);
+                                result.addAll(nextFirst);
+
+                                // FOLLOW(B)
+                                List<Terminal> leftFollow = followMap.get(p.getLeft().getRepresentation());
+                                result.removeAll(leftFollow);
+                                result.addAll(leftFollow);
                             } else {
                                 // ß cannot derive ε
-                                List<Terminal> firstA = firstMap.get(vs.getRepresentation());
-                                result.removeAll(firstA);
-                                result.addAll(firstA);
-
+                                result.removeAll(nextFirst);
+                                result.addAll(nextFirst);
                             }
 
                         }
                     }
+
+                    if (result.size() > 0) {
+                        followMap.put(nt.getRepresentation(), result);
+                        needToHandle.remove(nt);
+                        hasNewHandledTerminal = true;
+                    } else {
+                        // 延后计算
+                        i++;
+                    }
+
+                    if (!hasNewHandledTerminal) break;
                 }
+
+                // TODO 处理循环的非终结符，找到循环的两点，中间所有经过的非终结符 FOLLOW 都相同
+
             }
         }
     }
 
     /**
-     * 检查非终结符 nt 在文法中是否存在循环依赖
+     * 检查非终结符 nt 在文法中是否存在 FIRST 循环依赖
      */
-    private boolean hasCycle(NonTerminal nt) {
+    private boolean hasCycleFirst(NonTerminal nt) {
         List<NonTerminal> encountered = new LinkedList<>();
         encountered.add(nt);
 
@@ -281,7 +337,7 @@ public class ParsingTableConstructor {
                     ValidSign vs = p.getRight().get(0);
                     if (vs instanceof NonTerminal) {
                         if (encountered.contains(vs)) {
-                            // 已包含，及存在循环
+                            // 已包含，即存在循环
                             return true;
                         } else {
                             // 不包含，即为可以产生的，即加入 encountered
@@ -300,12 +356,77 @@ public class ParsingTableConstructor {
     }
 
     /**
+     * 检查非终结符 nt 在文法中是否存在 FELLOW 循环依赖
+     */
+    private boolean hasCycleFollow(NonTerminal nt) {
+        List<NonTerminal> encountered = new LinkedList<>();
+        encountered.add(nt);
+
+        List<Production> toCheck = new LinkedList<>();
+        toCheck.addAll(productions);
+        boolean hasNewNT;
+        do {
+            hasNewNT = false;
+            for (int i = 0; i < toCheck.size(); ) {
+                Production p = toCheck.get(i);
+                List<ValidSign> right = p.getRight();
+
+                int ntIndex = right.indexOf(nt);
+
+                if (ntIndex != -1) {
+                    // ß = ε 或 ε belongs to FIRST(ß) 时，需要计算 FOLLOW(A)
+
+                    boolean deriveToNull = false;
+                    if (ntIndex < right.size() - 1) {
+                        if (right.get(ntIndex + 1) instanceof NonTerminal) {
+                            List<Terminal> nextFirst = firstMap.get(right.get(ntIndex + 1).getRepresentation());
+                            for (Terminal t : nextFirst) {
+                                if (t.getRepresentation().equals("ε")) deriveToNull = true;
+                            }
+                        }
+                    }
+
+                    if ((ntIndex == right.size() - 1) || deriveToNull) {
+                        if (encountered.contains(p.getLeft())) {
+                            // 包含，即存在循环
+                            return true;
+                        } else {
+                            // 不包含，加入检测
+                            encountered.add(p.getLeft());
+                            hasNewNT = true;
+                            toCheck.remove(p);
+                            continue;
+                        }
+                    }
+                }
+                i++;
+
+            }
+        } while (hasNewNT);
+
+        return false;
+    }
+
+    /**
      * 找寻以该非终结符 nonTerminal 开头的所有产生式
      */
-    private List<Production> getRelatedProduction(NonTerminal nonTerminal) {
+    private List<Production> getRelatedProductionWithLeft(NonTerminal nonTerminal) {
         List<Production> result = new LinkedList<>();
         for (Production p : productions) {
             if (p.getLeft().equals(nonTerminal)) {
+                result.add(p);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 找寻右部有该非终结符 nonTerminal 的所有产生式
+     */
+    private List<Production> getRelatedProductionWithRight(NonTerminal nonTerminal) {
+        List<Production> result = new LinkedList<>();
+        for (Production p : productions) {
+            if (p.getRight().contains(nonTerminal)) {
                 result.add(p);
             }
         }
@@ -374,7 +495,7 @@ public class ParsingTableConstructor {
                 // 检查当前产生式是否可归约
                 if (isReducible(p)) {
                     // 可归约则计算 FOLLOW
-                    List<Terminal> follow = getFollow(p.getLeft());
+                    List<Terminal> follow = followMap.get(p.getLeft().getRepresentation());
 
                     // 将 FOLLOW 中的终结符填入 ACTION REDUCTION
                     for (Terminal t : follow) {
@@ -397,27 +518,6 @@ public class ParsingTableConstructor {
      */
     private boolean isReducible(Production production) {
         return production.getIndicator() == production.getRight().size();
-    }
-
-    /**
-     * B = ∂Aß，计算 FOLLOW(B)
-     */
-    private List<Terminal> getFollow(NonTerminal nt) {
-        List<Terminal> result = new LinkedList<>();
-
-        return result;
-    }
-
-    /**
-     * 计算 FIRST(B)
-     */
-    private List<Terminal> getFirst(NonTerminal nt) {
-        List<Terminal> result = new LinkedList<>();
-        for (Production p : productions) {
-
-        }
-
-        return result;
     }
 
     /**
