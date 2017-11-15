@@ -17,6 +17,11 @@ public abstract class ValidSign {
         this.representation = representation;
     }
 
+    @Override
+    public String toString() {
+        return representation;
+    }
+
     public String getRepresentation() {
         return representation;
     }

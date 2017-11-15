@@ -84,7 +84,7 @@ public class ParsingTableConstructor {
         initFollowMap();
     }
 
-    // TODO A->BC B->∂, FIRST(A) <= FIRST(C) 的情况还未考虑
+    // TODO S->A->A，未测试
     private void initFirstMap() {
         this.firstMap = new HashMap<>();
 
@@ -110,32 +110,72 @@ public class ParsingTableConstructor {
                 boolean noNewHandledNonTerminal = true;
 
                 for (int i = 0; i < needToHandle.size(); ) {
+                    List<Terminal> result = new LinkedList<>();
+
                     NonTerminal nt = needToHandle.get(i);
                     List<Production> relatedProduction = getRelatedProduction(nt);
 
-                    boolean isIndependent = true;
+                    // 检查该 FIRST 是否依赖于别的非终结符
+                    boolean isDependent = false;
                     for (Production p : relatedProduction) {
-                        ValidSign rightFirst = p.getRight().get(0);
-                        if (rightFirst instanceof NonTerminal && firstMap.get(rightFirst.getRepresentation()) == null) {
-                            // 需要依赖于别的 FIRST，之后再处理
-                            isIndependent = false;
+                        if (p.getRight().get(0) instanceof NonTerminal) {
+                            isDependent = true;
                             break;
                         }
                     }
 
-                    if (!isIndependent) {
-                        i++;
-                        continue;
-                    }
+                    if (isDependent) {
+                        if (hasCycle(nt)) {
+                            // 循环依赖，延后处理
+                            i++;
+                            continue;
+                        }
 
-                    // 不依赖于别的 FIRST，直接处理
-                    List<Terminal> result = new LinkedList<>();
-                    for (Production p : relatedProduction) {
-                        if (!result.contains(p.getRight().get(0))) result.add((Terminal) p.getRight().get(0));
+                        // FIRST 依赖于别的非终结符，但不是循环依赖
+                        for (Production p : relatedProduction) {
+                            int toCheckIndex = 0;
+                            ValidSign rightToCheckVS;
+
+                            // 依次检查此字符是否可以推导出 ε
+                            boolean boolCanDeriveToNull = false;
+                            do {
+                                rightToCheckVS = p.getRight().get(toCheckIndex);
+                                if (rightToCheckVS instanceof NonTerminal) {
+                                    List<Terminal> rightToCheckVSFollow = firstMap.get(rightToCheckVS.getRepresentation());
+
+                                    if (rightToCheckVSFollow != null) {
+                                        // 为空表示现在还不能计算非循环的依赖
+                                        result.removeAll(rightToCheckVSFollow);
+                                        result.addAll(rightToCheckVSFollow);
+
+                                        // 根据能不能推出 ε ，决定要不要继续向后推，加入 FIRST
+                                        boolCanDeriveToNull = canDeriveToNull(rightToCheckVS);
+                                        if (boolCanDeriveToNull) toCheckIndex++;
+                                    }
+                                } else if (rightToCheckVS instanceof Terminal) {
+                                    result.remove(rightToCheckVS);
+                                    result.add((Terminal) rightToCheckVS);
+                                }
+                            } while (boolCanDeriveToNull);
+                        }
+
+                        if (result.size() > 0) {
+                            firstMap.put(nt.getRepresentation(), result);
+                            needToHandle.remove(nt);
+                            noNewHandledNonTerminal = false;
+                        } else {
+                            // 延后计算
+                            i++;
+                        }
+                    } else {
+                        // FIRST 不依赖于别的非终结符，只依赖于终结符，直接处理
+                        for (Production p : relatedProduction) {
+                            if (!result.contains(p.getRight().get(0))) result.add((Terminal) p.getRight().get(0));
+                        }
+                        firstMap.put(nt.getRepresentation(), result);
+                        needToHandle.remove(nt);
+                        noNewHandledNonTerminal = false;
                     }
-                    firstMap.put(nt.getRepresentation(), result);
-                    needToHandle.remove(nt);
-                    noNewHandledNonTerminal = false;
                 }
 
                 if (noNewHandledNonTerminal) break;
@@ -205,7 +245,7 @@ public class ParsingTableConstructor {
                             result.addAll(followA);
                         } else {
                             // ß != ε
-                            if (deriveToNull(right.get(index + 1))) {
+                            if (canDeriveToNull(right.get(index + 1))) {
                                 // ß can derive ε
 
                             } else {
@@ -221,6 +261,42 @@ public class ParsingTableConstructor {
                 }
             }
         }
+    }
+
+    /**
+     * 检查非终结符 nt 在文法中是否存在循环依赖
+     */
+    private boolean hasCycle(NonTerminal nt) {
+        List<NonTerminal> encountered = new LinkedList<>();
+        encountered.add(nt);
+
+        List<Production> toCheck = new LinkedList<>();
+        toCheck.addAll(productions);
+        boolean hasNewNT;
+        do {
+            hasNewNT = false;
+            for (int i = 0; i < toCheck.size(); ) {
+                Production p = toCheck.get(i);
+                if (encountered.contains(p.getLeft())) {
+                    ValidSign vs = p.getRight().get(0);
+                    if (vs instanceof NonTerminal) {
+                        if (encountered.contains(vs)) {
+                            // 已包含，及存在循环
+                            return true;
+                        } else {
+                            // 不包含，即为可以产生的，即加入 encountered
+                            encountered.add((NonTerminal) vs);
+                            hasNewNT = true;
+                            toCheck.remove(p);
+                            continue;
+                        }
+                    }
+                }
+                i++;
+            }
+        } while (hasNewNT);
+
+        return false;
     }
 
     /**
@@ -358,10 +434,11 @@ public class ParsingTableConstructor {
     /**
      * @return 检验 vs -> ε 是否存在
      */
-    private boolean deriveToNull(ValidSign vs) {
+    private boolean canDeriveToNull(ValidSign vs) {
         for (Production production : productions) {
             List<ValidSign> right = production.getRight();
-            if (right.size() == 1 && right.get(0).getRepresentation().equals("ε")) return true;
+            if (production.getLeft().getRepresentation().equals(vs.getRepresentation())
+                    && right.get(0).getRepresentation().equals("ε")) return true;
         }
         return false;
     }
