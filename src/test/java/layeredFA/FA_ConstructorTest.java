@@ -26,6 +26,7 @@ public class FA_ConstructorTest {
     private static final Logger logger = Logger.getLogger(FA_Constructor.class);
 
     private List<Production> productions;
+    private List<ValidSign> validSigns;
 
     private List<Production> toTest1;
     private List<Production> toTest2;
@@ -83,6 +84,13 @@ public class FA_ConstructorTest {
         productions.add(p3);
         productions.add(p4);
 
+        validSigns = new LinkedList<>();
+        validSigns.add(t1);
+        validSigns.add(t2);
+        validSigns.add(t3);
+        validSigns.add(t4);
+        validSigns.add(n1);
+
 
         Production toTestP1 = new Production(n1, right1, 3);
         Production toTestP2 = new Production(n1, right1, 4);
@@ -129,7 +137,7 @@ public class FA_ConstructorTest {
      */
     @Test
     public void testParse() throws Exception {
-        new FA_Constructor(productions).parse();
+        new FA_Constructor(productions, validSigns).parse();
     }
 
 
@@ -141,10 +149,10 @@ public class FA_ConstructorTest {
         try {
             Method method = FA_Constructor.class.getDeclaredMethod("closureProduction", List.class);
             method.setAccessible(true);
-//            method.invoke(new FA_Constructor(productions), toTest1);
-//            method.invoke(new FA_Constructor(productions), toTest2);
-            method.invoke(new FA_Constructor(productions), toTest3);
-//            method.invoke(new FA_Constructor(productions), toTest4);
+//            method.invoke(new FA_Constructor(productions, validSigns), toTest1);
+//            method.invoke(new FA_Constructor(productions, validSigns), toTest2);
+            method.invoke(new FA_Constructor(productions, validSigns), toTest3);
+//            method.invoke(new FA_Constructor(productions, validSigns), toTest4);
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
         }
 
@@ -158,8 +166,8 @@ public class FA_ConstructorTest {
         try {
             Method method = FA_Constructor.class.getDeclaredMethod("move", List.class, ValidSign.class);
             method.setAccessible(true);
-//            method.invoke(new FA_Constructor(productions), toTest5, new NonTerminal("S"));
-            method.invoke(new FA_Constructor(productions), toTest5, new Terminal(";"));
+//            method.invoke(new FA_Constructor(productions, validSigns), toTest5, new NonTerminal("S"));
+            method.invoke(new FA_Constructor(productions, validSigns), toTest5, new Terminal(";"));
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
         }
     }
@@ -172,7 +180,7 @@ public class FA_ConstructorTest {
         try {
             Method method = FA_Constructor.class.getDeclaredMethod("getAllValidSigns");
             method.setAccessible(true);
-            method.invoke(new FA_Constructor(productions));
+            method.invoke(new FA_Constructor(productions, validSigns));
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
         }
     }
