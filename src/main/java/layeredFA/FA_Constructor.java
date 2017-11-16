@@ -13,7 +13,7 @@ import java.util.*;
 
 /**
  * Created by cuihua on 2017/11/14.
- *
+ * <p>
  * 根据文法构建相应的有穷自动机
  */
 public class FA_Constructor {

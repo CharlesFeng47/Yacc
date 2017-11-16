@@ -2,7 +2,7 @@ package entities;
 
 /**
  * Created by cuihua on 2017/11/14.
- *
+ * <p>
  * 合法字符
  * TODO 增加方法及实现 在分析表中遇到了该怎么做
  */

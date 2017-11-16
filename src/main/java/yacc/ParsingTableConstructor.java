@@ -78,6 +78,35 @@ public class ParsingTableConstructor {
     }
 
     /**
+     * 检查 productions 中是不是开始符只出现了一次
+     */
+    private boolean isSingleStartLeft(List<Production> productions) {
+        NonTerminal startNT = productions.get(0).getLeft();
+        String startSign = startNT.getRepresentation();
+
+        int count = 0;
+        for (Production p : productions) {
+            if (p.getLeft().getRepresentation().equals(startSign)) count++;
+        }
+
+        return count == 1;
+    }
+
+    /**
+     * 获取所有的合法字符，相当于字母表
+     */
+    private List<ValidSign> getAllValidSigns() {
+        List<ValidSign> result = new LinkedList<>();
+        for (Production p : productions) {
+            for (ValidSign vs : p.getRight()) {
+                if (!result.contains(vs)) result.add(vs);
+            }
+        }
+        logger.debug("ValidSigns Size：" + result.size());
+        return result;
+    }
+
+    /**
      * 初始化 FIRST FOLLOW 集合
      */
     private void initMap() {
@@ -499,33 +528,26 @@ public class ParsingTableConstructor {
     }
 
     /**
-     * 获取所有的合法字符，相当于字母表
+     * @return 非终结符 nt 在 right 中，则返回 nt 在其中的序号，找不到则返回 -1
      */
-    private List<ValidSign> getAllValidSigns() {
-        List<ValidSign> result = new LinkedList<>();
-        for (Production p : productions) {
-            for (ValidSign vs : p.getRight()) {
-                if (!result.contains(vs)) result.add(vs);
-            }
+    private int containNT(List<ValidSign> right, NonTerminal nt) {
+        for (int i = 0; i < right.size(); i++) {
+            ValidSign vs = right.get(i);
+            if (vs.getRepresentation().equals(nt.getRepresentation())) return i;
         }
-        logger.debug("ValidSigns Size：" + result.size());
-        return result;
+        return -1;
     }
 
     /**
-     * 检查 productions 中是不是开始符只出现了一次
+     * @return 检验 vs -> ε 是否存在
      */
-
-    private boolean isSingleStartLeft(List<Production> productions) {
-        NonTerminal startNT = productions.get(0).getLeft();
-        String startSign = startNT.getRepresentation();
-
-        int count = 0;
-        for (Production p : productions) {
-            if (p.getLeft().getRepresentation().equals(startSign)) count++;
+    private boolean canDeriveToNull(ValidSign vs) {
+        for (Production production : productions) {
+            List<ValidSign> right = production.getRight();
+            if (production.getLeft().getRepresentation().equals(vs.getRepresentation())
+                    && right.get(0).getRepresentation().equals("ε")) return true;
         }
-
-        return count == 1;
+        return false;
     }
 
     /**
@@ -583,29 +605,6 @@ public class ParsingTableConstructor {
      */
     private boolean isReducible(Production production) {
         return production.getIndicator() == production.getRight().size();
-    }
-
-    /**
-     * @return 非终结符 nt 在 right 中，则返回 nt 在其中的序号，找不到则返回 -1
-     */
-    private int containNT(List<ValidSign> right, NonTerminal nt) {
-        for (int i = 0; i < right.size(); i++) {
-            ValidSign vs = right.get(i);
-            if (vs.getRepresentation().equals(nt.getRepresentation())) return i;
-        }
-        return -1;
-    }
-
-    /**
-     * @return 检验 vs -> ε 是否存在
-     */
-    private boolean canDeriveToNull(ValidSign vs) {
-        for (Production production : productions) {
-            List<ValidSign> right = production.getRight();
-            if (production.getLeft().getRepresentation().equals(vs.getRepresentation())
-                    && right.get(0).getRepresentation().equals("ε")) return true;
-        }
-        return false;
     }
 
     /**

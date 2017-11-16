@@ -7,7 +7,7 @@ import java.util.List;
 
 /**
  * Created by cuihua on 2017/11/14.
- *
+ * <p>
  * 有穷自动机
  */
 public class LayeredFA {

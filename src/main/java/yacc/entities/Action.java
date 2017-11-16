@@ -4,7 +4,7 @@ import utilities.ActionType;
 
 /**
  * Created by cuihua on 2017/11/15.
- *
+ * <p>
  * 文法分析表中的动作
  */
 public class Action {

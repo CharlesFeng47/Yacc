@@ -50,7 +50,6 @@ public class Production {
     }
 
     /**
-     *
      * @return 没有小圆点标记的产生式
      */
     public String toSimpleString() {
