@@ -1,4 +1,4 @@
-package lexicalAnalyzer.utilties;
+package lexicalAnalyzer.utilities;
 
 /**
  * Created by cuihua on 2017/10/25.

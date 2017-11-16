@@ -1,7 +1,8 @@
-package lexicalAnalyzer.lex.generator;
+package lexicalAnalyzer.lex;
 
 import lexicalAnalyzer.finiteAutomata.FA_Controller;
 import lexicalAnalyzer.finiteAutomata.entity.DFA;
+import utilities.MyResourceFileReader;
 
 import java.util.*;
 
@@ -10,7 +11,12 @@ import java.util.*;
  * <p>
  * 处理 Lex .l 文件中的数据（只含有正则定义）
  */
-public class LexInputHandler {
+public class LexFileHandler {
+
+    /**
+     * .l 文件的路径
+     */
+    private static final String path = "regular_expression.l";
 
     /**
      * .l 文件的内容（模式 pattern + 正则定义 re）
@@ -22,8 +28,10 @@ public class LexInputHandler {
      */
     private Map<String, String> patternREMap;
 
-    public LexInputHandler(List<String> content) {
-        this.content = content;
+    public LexFileHandler() {
+        // 从 .l 文件中读取数据
+        this.content = new MyResourceFileReader().readFile(path);
+
         initMap();
     }
 
@@ -42,7 +50,7 @@ public class LexInputHandler {
     /**
      * .l 文件内容对应的 DFA
      */
-    public List<DFA> convert() {
+    public List<DFA> convertToDFA() {
         // 处理正则定义
         List<String> res = new LinkedList<>(patternREMap.values());
         List<String> patternTypes = new LinkedList<>(patternREMap.keySet());

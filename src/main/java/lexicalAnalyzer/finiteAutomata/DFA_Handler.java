@@ -2,7 +2,7 @@ package lexicalAnalyzer.finiteAutomata;
 
 import lexicalAnalyzer.finiteAutomata.entity.*;
 import org.apache.log4j.Logger;
-import lexicalAnalyzer.utilties.*;
+import lexicalAnalyzer.utilities.*;
 
 import java.util.*;
 

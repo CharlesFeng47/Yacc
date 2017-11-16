@@ -3,10 +3,10 @@ package lexicalAnalyzer.finiteAutomata;
 import lexicalAnalyzer.finiteAutomata.entity.FA_Edge;
 import lexicalAnalyzer.finiteAutomata.entity.FA_State;
 import lexicalAnalyzer.finiteAutomata.entity.NFA;
-import lexicalAnalyzer.utilties.FA_StateComparator;
-import lexicalAnalyzer.utilties.FA_StateIDController;
-import lexicalAnalyzer.utilties.FA_StatesList;
-import lexicalAnalyzer.utilties.NFA_StatePatternMappingController;
+import lexicalAnalyzer.utilities.FA_StateComparator;
+import lexicalAnalyzer.utilities.FA_StateIDController;
+import lexicalAnalyzer.utilities.FA_StatesList;
+import lexicalAnalyzer.utilities.NFA_StatePatternMappingController;
 
 import java.util.LinkedList;
 import java.util.List;

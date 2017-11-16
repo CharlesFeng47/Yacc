@@ -7,6 +7,6 @@ package utilities;
  */
 public enum ActionType {
 
-    // 移入，归约
-    SHIFT, REDUCTION
+    // 移入，归约，接受
+    SHIFT, REDUCTION, ACCEPT
 }

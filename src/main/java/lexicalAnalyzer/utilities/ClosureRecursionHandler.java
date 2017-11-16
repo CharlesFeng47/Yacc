@@ -1,4 +1,4 @@
-package lexicalAnalyzer.utilties;
+package lexicalAnalyzer.utilities;
 
 import lexicalAnalyzer.finiteAutomata.entity.FA_State;
 import org.apache.log4j.Logger;

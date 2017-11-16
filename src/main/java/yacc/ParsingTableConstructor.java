@@ -54,6 +54,11 @@ public class ParsingTableConstructor {
      */
     private Map<String, List<Terminal>> followMap;
 
+    /**
+     * 读头末尾、开始产生式的终结符
+     */
+    private static final Terminal finalTerminal = new Terminal("$");
+
 
     public ParsingTableConstructor(List<Production> productions) {
         if (!isSingleStartLeft(productions)) {
@@ -237,7 +242,6 @@ public class ParsingTableConstructor {
         this.followMap = new LinkedHashMap<>();
 
         // 起始符的 FOLLOW  加入 $
-        Terminal finalTerminal = new Terminal("$");
         List<Terminal> startNonTerminalFollow = new LinkedList<>();
         startNonTerminalFollow.add(finalTerminal);
         followMap.put(productions.get(0).getLeft().getRepresentation(), startNonTerminalFollow);
@@ -349,9 +353,7 @@ public class ParsingTableConstructor {
             }
 
             // 处理循环的非终结符，找到循环的两点，中间所有经过的非终结符 FOLLOW 都相同
-            for (int i = 0; i < needToHandle.size(); i++) {
-                NonTerminal nt = needToHandle.get(i);
-
+            for (NonTerminal nt : needToHandle) {
                 FirstOrFollowCycle cycle = followCycle(nt);
                 if (cycle != null) {
                     // 循环的需要进行处理
@@ -559,7 +561,18 @@ public class ParsingTableConstructor {
 
         ParsingTable pt = new ParsingTable(fa);
 
-        // 根据状态间填写非终结符的 ACTION SHIFT 和终结符的 GOTO
+        // 设置接受态
+        final String startProductionString = simpleProductions.get(0);
+        final int startProductionIndicator = productions.get(0).getRight().size();
+        for (FA_State state : fa.getStates()) {
+            for (Production p : state.getProductions()) {
+                if (p.toSimpleString().equals(startProductionString) && p.getIndicator() == startProductionIndicator) {
+                    pt.getActionMap().get(state.getStateID()).put(finalTerminal, new Action(ActionType.ACCEPT, -1));
+                }
+            }
+        }
+
+        // 根据状态间填写终结符的 ACTION SHIFT 和非终结符的 GOTO
         for (FA_State state : fa.getStates()) {
             for (FA_Edge edge : state.getFollows()) {
                 ValidSign vs = edge.getLabel();

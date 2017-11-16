@@ -1,5 +1,3 @@
-package yacc;
-
 import lexicalAnalyzer.LexicalAnalyzer;
 import lexicalAnalyzer.exceptions.NotMatchingException;
 import lexicalAnalyzer.lex.entity.Token;
@@ -13,13 +11,10 @@ import java.util.List;
  */
 public class Main {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws NotMatchingException {
         LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer();
-        try {
-            List<Token> inputToken = lexicalAnalyzer.lexicalAnalyze();
-        } catch (NotMatchingException e) {
-            e.printStackTrace();
-        }
+        List<Token> inputToken = lexicalAnalyzer.lexicalAnalyze();
+
 
 
     }

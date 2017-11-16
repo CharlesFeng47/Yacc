@@ -4,9 +4,8 @@ import lexicalAnalyzer.exceptions.NotMatchingException;
 import lexicalAnalyzer.finiteAutomata.entity.DFA;
 import lexicalAnalyzer.lex.UserInteractionController;
 import lexicalAnalyzer.lex.entity.Token;
-import lexicalAnalyzer.lex.generator.LexInputHandler;
-import lexicalAnalyzer.lex.generator.LexInputReader;
-import lexicalAnalyzer.utilties.DFA_StatePatternMappingController;
+import lexicalAnalyzer.lex.LexFileHandler;
+import lexicalAnalyzer.utilities.DFA_StatePatternMappingController;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -35,16 +34,10 @@ public class LexicalAnalyzer {
         UserInteractionController userInteractionController = new UserInteractionController();
         List<String> lexemes = userInteractionController.readUserContent();
 
+        // 解析 .l 文件，生成词法分析器
+        LexFileHandler lexFileHandler = new LexFileHandler();
+        this.allDFAs = lexFileHandler.convertToDFA();
 
-        // 解析 .l 文件代表的 DFA
-        LexInputReader lexInputReader = new LexInputReader();
-        List<String> lexContent = lexInputReader.readREs();
-
-        LexInputHandler lexInputHandler = new LexInputHandler(lexContent);
-        List<DFA> allDFAs = lexInputHandler.convert();
-
-        // 生成词法分析器
-        this.allDFAs = allDFAs;
         List<Token> resultTokens = new LinkedList<>();
         for (String lexeme : lexemes) {
             resultTokens.add(analyze(lexeme));
@@ -61,7 +54,7 @@ public class LexicalAnalyzer {
      * @param lexeme 要分析的词素
      * @return 分析结束之后的的结果词法单元
      */
-    public Token analyze(String lexeme) throws NotMatchingException {
+    private Token analyze(String lexeme) throws NotMatchingException {
         for (DFA curDFA : allDFAs) {
             // 按优先级顺序依次对比，满足了就返回
             if (curDFA.isValid(lexeme))

@@ -39,8 +39,8 @@ public class Monitor {
     /**
      * 对输入 input 进行词法分析
      */
-    public List<String> syntaxAnalyze(final List<Terminal> input) throws SyntaxException {
-        List<String> resultSimpleProduction = new LinkedList<>();
+    public List<Action> syntaxAnalyze(final List<Terminal> input) throws SyntaxException {
+        List<Action> result = new LinkedList<>();
 
         Stack<Integer> stateStack = new Stack<>();
         Stack<ValidSign> symbolStack = new Stack<>();
@@ -48,14 +48,14 @@ public class Monitor {
         stateStack.push(0);
         symbolStack.push(new Terminal("$"));
 
-        for (int i = 0; i < input.size(); i++) {
-            Terminal t = input.get(i);
-
+        for (Terminal t : input) {
             int curState = stateStack.peek();
             Action curAction = pt.getActionMap().get(curState).get(t);
             if (curAction == null) {
                 throw new SyntaxException("ERROR 文法分析表中对应表格为空");
             } else {
+                result.add(curAction);
+
                 // 移入
                 if (curAction.getType() == ActionType.SHIFT) {
                     stateStack.push(curAction.getOperand());
@@ -63,14 +63,19 @@ public class Monitor {
                 }
 
                 // 归约
-                if (curAction.getType() == ActionType.REDUCTION) {
+                else if (curAction.getType() == ActionType.REDUCTION) {
                     int reduceProductionIndex = curAction.getOperand();
                     Production reduceProduction = productions.get(reduceProductionIndex);
-                    for (int j = 0; j < reduceProduction.getRight().size(); j++) {
-                        stateStack.pop();
-                        symbolStack.pop();
+
+                    int reduceProductionSize = reduceProduction.getRight().size();
+                    for (int j = 0; j < reduceProductionSize; j++) {
+                        ValidSign productionVS = reduceProduction.getRight().get(reduceProductionSize - 1 - j);
+                        ValidSign symbolStackTop = symbolStack.peek();
+                        if (symbolStackTop.getRepresentation().equals(productionVS.getRepresentation())) {
+                            stateStack.pop();
+                            symbolStack.pop();
+                        }
                     }
-                    resultSimpleProduction.add(reduceProduction.toSimpleString());
 
                     NonTerminal reduceTo = reduceProduction.getLeft();
                     symbolStack.push(reduceTo);
@@ -84,10 +89,17 @@ public class Monitor {
                     }
 
                 }
+
+                // 接受
+                else if (curAction.getType() == ActionType.ACCEPT) {
+                    result.add(curAction);
+                    return result;
+
+                }
             }
 
         }
 
-        return resultSimpleProduction;
+        throw new SyntaxException("未到达 ACCEPT 状态");
     }
 }

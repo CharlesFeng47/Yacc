@@ -3,8 +3,8 @@ package lexicalAnalyzer.finiteAutomata;
 import lexicalAnalyzer.exceptions.UnexpectedRegularExprRuleException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.log4j.Logger;
-import lexicalAnalyzer.utilties.ExtendedMark;
-import lexicalAnalyzer.utilties.SquareBracketMarkInnerType;
+import lexicalAnalyzer.utilities.ExtendedMark;
+import lexicalAnalyzer.utilities.SquareBracketMarkInnerType;
 
 import java.util.LinkedList;
 import java.util.List;
