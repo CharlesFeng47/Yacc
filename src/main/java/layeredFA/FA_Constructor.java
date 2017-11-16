@@ -1,8 +1,8 @@
 package layeredFA;
 
-import entity.NonTerminal;
-import entity.Production;
-import entity.ValidSign;
+import entities.NonTerminal;
+import entities.Production;
+import entities.ValidSign;
 import layeredFA.entities.FA_Edge;
 import layeredFA.entities.FA_State;
 import layeredFA.entities.LayeredFA;

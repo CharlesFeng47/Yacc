@@ -1,9 +1,9 @@
 package layeredFA;
 
-import entity.NonTerminal;
-import entity.Production;
-import entity.Terminal;
-import entity.ValidSign;
+import entities.NonTerminal;
+import entities.Production;
+import entities.Terminal;
+import entities.ValidSign;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;

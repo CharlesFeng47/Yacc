@@ -7,4 +7,11 @@ package yacc;
  */
 public class UserInteractionController {
 
+    /**
+     * 输出所有的归约序列
+     */
+    public void showAll() {
+
+    }
+
 }

@@ -1,8 +1,8 @@
 package yacc.entities;
 
-import entity.NonTerminal;
-import entity.Terminal;
-import entity.ValidSign;
+import entities.NonTerminal;
+import entities.Terminal;
+import entities.ValidSign;
 import layeredFA.entities.FA_State;
 import layeredFA.entities.LayeredFA;
 

@@ -1,6 +1,6 @@
 package layeredFA.entities;
 
-import entity.ValidSign;
+import entities.ValidSign;
 
 /**
  * Created by cuihua on 2017/11/14.

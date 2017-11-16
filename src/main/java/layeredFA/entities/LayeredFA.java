@@ -1,6 +1,6 @@
 package layeredFA.entities;
 
-import entity.ValidSign;
+import entities.ValidSign;
 
 import java.util.LinkedList;
 import java.util.List;

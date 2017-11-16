@@ -1,6 +1,6 @@
 package utilities;
 
-import entity.Production;
+import entities.Production;
 import org.apache.log4j.Logger;
 
 import java.util.LinkedList;

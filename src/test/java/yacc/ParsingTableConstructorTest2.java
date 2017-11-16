@@ -1,9 +1,9 @@
 package yacc;
 
-import entity.NonTerminal;
-import entity.Production;
-import entity.Terminal;
-import entity.ValidSign;
+import entities.NonTerminal;
+import entities.Production;
+import entities.Terminal;
+import entities.ValidSign;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

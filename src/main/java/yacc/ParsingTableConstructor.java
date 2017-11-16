@@ -1,9 +1,9 @@
 package yacc;
 
-import entity.NonTerminal;
-import entity.Production;
-import entity.Terminal;
-import entity.ValidSign;
+import entities.NonTerminal;
+import entities.Production;
+import entities.Terminal;
+import entities.ValidSign;
 import exceptions.ParsingTableConflictException;
 import layeredFA.FA_Constructor;
 import layeredFA.entities.FA_Edge;

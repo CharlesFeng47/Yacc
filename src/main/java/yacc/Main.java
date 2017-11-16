@@ -10,8 +10,6 @@ import java.util.List;
 public class Main {
 
     public static void main(String[] args) {
-        UserInteractionController userInteractionController = new UserInteractionController();
-        List<String> lexemes = userInteractionController.readUserContent();
 
 
 

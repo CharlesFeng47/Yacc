@@ -1,6 +1,6 @@
 package layeredFA.entities;
 
-import entity.Production;
+import entities.Production;
 import utilities.FA_StateIDController;
 
 import java.util.LinkedList;
