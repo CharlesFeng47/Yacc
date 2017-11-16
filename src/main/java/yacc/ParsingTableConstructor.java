@@ -326,7 +326,7 @@ public class ParsingTableConstructor {
                 FirstOrFollowCycle cycle = followCycle(nt);
                 if (cycle != null) {
                     // 循环的需要进行处理
-                    List<Terminal> result = new LinkedList<>();
+                    List<Terminal> result = cycle.getCycleValue();
                     for (NonTerminal temp : cycle.getCycleBody()) {
                         List<Terminal> curFollow = followMap.get(temp.getRepresentation());
                         if (curFollow != null) {
@@ -422,7 +422,12 @@ public class ParsingTableConstructor {
 
         List<Production> toCheck = new LinkedList<>();
         toCheck.addAll(productions);
+
+        // 控制 do while 循环跳出
         boolean hasNewNT;
+        // 标识是否存在循环
+        boolean hasCycle = false;
+
         do {
             hasNewNT = false;
             for (int i = 0; i < toCheck.size(); ) {
@@ -442,14 +447,14 @@ public class ParsingTableConstructor {
                                 if (t.getRepresentation().equals("ε")) deriveToNull = true;
                             }
                         } else if (next instanceof Terminal) {
-                            cycleValue.add((Terminal) next);
+                            if (!cycleValue.contains(next)) cycleValue.add((Terminal) next);
                         }
                     }
 
                     if ((ntIndex == right.size() - 1) || deriveToNull) {
                         if (encounteredNT.contains(p.getLeft())) {
                             // 包含，即存在循环
-                            return new FirstOrFollowCycle(encounteredNT, cycleValue);
+                            hasCycle = true;
                         } else {
                             // 不包含，加入检测
                             encounteredNT.add(p.getLeft());
@@ -463,7 +468,8 @@ public class ParsingTableConstructor {
             }
         } while (hasNewNT);
 
-        return null;
+        if (hasCycle) return new FirstOrFollowCycle(encounteredNT, cycleValue);
+        else return null;
     }
 
     /**
