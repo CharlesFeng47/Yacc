@@ -1,0 +1,11 @@
+separator \,|;
+comparator <|>|(<=)|(>=)|(==)|(!=)
+assignment =
+digit [0-9]
+number [1-9][0-9]*
+letter [a-zA-Z]
+word [a-zA-Z]*
+quotation "[a-zA-Z]*"
+id [a-zA-Z][_a-zA-Z0-9]*
+testTransferred1 \{a*b*c{1,3}\}
+testTransferred2 \[0\-9\]a*
