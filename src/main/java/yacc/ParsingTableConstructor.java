@@ -126,7 +126,7 @@ public class ParsingTableConstructor {
                     }
 
                     if (isDependent) {
-                        if (hasCycleFirst(nt)) {
+                        if (firstCycle(nt) != null) {
                             // 循环依赖，延后处理
                             i++;
                             continue;
@@ -187,37 +187,15 @@ public class ParsingTableConstructor {
             for (int i = 0; i < needToHandle.size(); ) {
                 NonTerminal nt = needToHandle.get(i);
 
-                List<Terminal> result = new LinkedList<>();
-                List<NonTerminal> handling = new LinkedList<>();
-                handling.add(nt);
-                boolean noNewNonTerminal;
-                do {
-                    noNewNonTerminal = true;
-
-                    List<Production> related = new LinkedList<>();
-                    for (NonTerminal temp : handling) {
-                        List<Production> curRelated = getRelatedProductionWithLeft(temp);
-                        related.removeAll(curRelated);
-                        related.addAll(curRelated);
+                FirstOrFollowCycle cycle = firstCycle(nt);
+                if (cycle != null) {
+                    // 循环的需要进行处理
+                    // handling 中的所有非终结符 FIRST 都相同
+                    List<Terminal> result = cycle.getCycleValue();
+                    for (NonTerminal temp : cycle.getCycleBody()) {
+                        firstMap.put(temp.getRepresentation(), result);
+                        needToHandle.remove(temp);
                     }
-
-                    for (Production p : related) {
-                        ValidSign rightFirst = p.getRight().get(0);
-                        if (rightFirst instanceof Terminal) {
-                            if (!result.contains(rightFirst)) result.add((Terminal) rightFirst);
-                        } else if (rightFirst instanceof NonTerminal) {
-                            if (!handling.contains(rightFirst)) {
-                                handling.add((NonTerminal) rightFirst);
-                                noNewNonTerminal = false;
-                            }
-                        }
-                    }
-                } while (!noNewNonTerminal);
-
-                // handling 中的所有非终结符 FIRST 都相同
-                for (NonTerminal temp : handling) {
-                    firstMap.put(temp.getRepresentation(), result);
-                    needToHandle.remove(temp);
                 }
             }
         }
@@ -390,37 +368,47 @@ public class ParsingTableConstructor {
     /**
      * 检查非终结符 nt 在文法中是否存在 FIRST 循环依赖
      */
-    private boolean hasCycleFirst(NonTerminal nt) {
-        List<NonTerminal> encountered = new LinkedList<>();
-        encountered.add(nt);
+    private FirstOrFollowCycle firstCycle(NonTerminal nt) {
+        List<NonTerminal> encounteredNT = new LinkedList<>();
+        encounteredNT.add(nt);
+
+        List<Terminal> cycleValue = new LinkedList<>();
 
         List<Production> toCheck = new LinkedList<>();
         toCheck.addAll(productions);
+
+        // 控制 do while 循环跳出
         boolean hasNewNT;
+        // 标识是否存在循环
+        boolean hasCycle = false;
+
         do {
             hasNewNT = false;
             for (int i = 0; i < toCheck.size(); ) {
                 Production p = toCheck.get(i);
-                if (encountered.contains(p.getLeft())) {
-                    ValidSign vs = p.getRight().get(0);
-                    if (vs instanceof NonTerminal) {
-                        if (encountered.contains(vs)) {
+                if (encounteredNT.contains(p.getLeft())) {
+                    ValidSign rightFirst = p.getRight().get(0);
+                    if (rightFirst instanceof NonTerminal) {
+                        if (encounteredNT.contains(rightFirst)) {
                             // 已包含，即存在循环
-                            return true;
+                            hasCycle = true;
                         } else {
                             // 不包含，即为可以产生的，即加入 encountered
-                            encountered.add((NonTerminal) vs);
+                            encounteredNT.add((NonTerminal) rightFirst);
                             hasNewNT = true;
                             toCheck.remove(p);
                             continue;
                         }
+                    } else if (rightFirst instanceof Terminal) {
+                        if (!cycleValue.contains(rightFirst)) cycleValue.add((Terminal) rightFirst);
                     }
                 }
                 i++;
             }
         } while (hasNewNT);
 
-        return false;
+        if (hasCycle) return new FirstOrFollowCycle(encounteredNT, cycleValue);
+        else return null;
     }
 
     /**
