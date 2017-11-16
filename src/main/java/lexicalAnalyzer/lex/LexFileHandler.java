@@ -19,27 +19,15 @@ public class LexFileHandler {
     private static final String path = "regular_expression.l";
 
     /**
-     * .l 文件的内容（模式 pattern + 正则定义 re）
-     */
-    private List<String> content;
-
-    /**
      * 模式 与 正则定义 的一一映射
      */
     private Map<String, String> patternREMap;
 
     public LexFileHandler() {
         // 从 .l 文件中读取数据
-        this.content = new MyResourceFileReader().readFile(path);
+        List<String> content = new MyResourceFileReader().readFile(path);
 
-        initMap();
-    }
-
-    /**
-     * 根据 .l 文件初始化映射表
-     * LinkedHashMao 保证顺序与读入顺序相同
-     */
-    private void initMap() {
+        // LinkedHashMao 保证顺序与读入顺序相同
         patternREMap = new LinkedHashMap<>();
         for (String line : content) {
             String[] parts = line.split(" ");

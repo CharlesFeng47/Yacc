@@ -561,17 +561,6 @@ public class ParsingTableConstructor {
 
         ParsingTable pt = new ParsingTable(fa);
 
-        // 设置接受态
-        final String startProductionString = simpleProductions.get(0);
-        final int startProductionIndicator = productions.get(0).getRight().size();
-        for (FA_State state : fa.getStates()) {
-            for (Production p : state.getProductions()) {
-                if (p.toSimpleString().equals(startProductionString) && p.getIndicator() == startProductionIndicator) {
-                    pt.getActionMap().get(state.getStateID()).put(finalTerminal, new Action(ActionType.ACCEPT, -1));
-                }
-            }
-        }
-
         // 根据状态间填写终结符的 ACTION SHIFT 和非终结符的 GOTO
         for (FA_State state : fa.getStates()) {
             for (FA_Edge edge : state.getFollows()) {
@@ -606,6 +595,17 @@ public class ParsingTableConstructor {
                         if (preAction != null) throw new ParsingTableConflictException(preAction, curAction);
                         else curActionMap.put(t, curAction);
                     }
+                }
+            }
+        }
+
+        // 设置接受态
+        final String startProductionString = simpleProductions.get(0);
+        final int startProductionIndicator = productions.get(0).getRight().size();
+        for (FA_State state : fa.getStates()) {
+            for (Production p : state.getProductions()) {
+                if (p.toSimpleString().equals(startProductionString) && p.getIndicator() == startProductionIndicator) {
+                    pt.getActionMap().get(state.getStateID()).put(finalTerminal, new Action(ActionType.ACCEPT, -1));
                 }
             }
         }

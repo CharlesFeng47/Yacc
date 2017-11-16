@@ -27,6 +27,9 @@ public class ParsingTable {
     private Map<Integer, Map<NonTerminal, Integer>> gotoMap;
 
     public ParsingTable(LayeredFA fa) {
+        actionMap = new HashMap<>();
+        gotoMap = new HashMap<>();
+
         for (FA_State state : fa.getStates()) {
             for (ValidSign vs : fa.getValidSign()) {
                 if (vs instanceof NonTerminal) gotoMap.put(state.getStateID(), new HashMap<>());

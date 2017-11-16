@@ -17,4 +17,9 @@ public class ParsingTableConflictException extends Exception {
         this.action1 = action1;
         this.action2 = action2;
     }
+
+    @Override
+    public String getMessage() {
+        return action1.toString() + " 和 " + action2.toString() + "发生了冲突";
+    }
 }

@@ -24,6 +24,11 @@ public class Action {
         this.operand = operand;
     }
 
+    @Override
+    public String toString() {
+        return type + " " + String.valueOf(operand);
+    }
+
     public ActionType getType() {
         return type;
     }
