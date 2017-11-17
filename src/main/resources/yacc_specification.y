@@ -1,4 +1,4 @@
-E : E add T
+E : E addorminus T
     | T
     ;
 
@@ -6,6 +6,6 @@ T : T multiply F
     | F
     ;
 
-F : ( E )
+F : leftParentheses E rightParentheses
     | id
     ;

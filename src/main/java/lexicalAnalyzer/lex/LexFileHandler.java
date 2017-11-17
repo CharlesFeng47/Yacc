@@ -23,6 +23,10 @@ public class LexFileHandler {
      */
     private Map<String, String> patternREMap;
 
+    public List<String> getAllPattern() {
+        return new LinkedList<>(patternREMap.keySet());
+    }
+
     public LexFileHandler() {
         // 从 .l 文件中读取数据
         List<String> content = new MyResourceFileReader().readFile(path);

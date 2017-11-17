@@ -1,9 +1,10 @@
 separator \,|;
 comparator <|>|(<=)|(>=)|(==)|(!=)
-add \+
-minus \-
+addorminus \+|\-
 multiply \*
 divide /
+leftParentheses \(
+rightParentheses \)
 assignment =
 digit [0-9]
-id [a-zA-Z][_a-zA-Z0-9]*
+id [a-z][_a-z0-9]*

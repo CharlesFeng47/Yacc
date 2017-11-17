@@ -6,6 +6,9 @@ import entities.Terminal;
 import entities.ValidSign;
 import exceptions.ParsingTableConflictException;
 import exceptions.YaccFileInputException;
+import lexicalAnalyzer.LexicalAnalyzer;
+import lexicalAnalyzer.exceptions.NotMatchingException;
+import lexicalAnalyzer.lex.entity.Token;
 import utilities.MyResourceFileReader;
 import yacc.entities.ParsingTable;
 
@@ -33,10 +36,31 @@ class YaccFileHandler {
      */
     private Map<String, ValidSign> validSignMap;
 
-    YaccFileHandler() throws YaccFileInputException {
+    /**
+     * .l 文件生成的词法分析器
+     */
+    private LexicalAnalyzer lexicalAnalyzer;
+
+    /**
+     * .l  文件生成的所有模式
+     */
+    private List<String> allPattern;
+
+    YaccFileHandler(LexicalAnalyzer lexicalAnalyzer) throws YaccFileInputException {
+        this.lexicalAnalyzer = lexicalAnalyzer;
+        this.allPattern = lexicalAnalyzer.getAllPattern();
+
         // 从 .y 文件中读取数据
         List<String> content = new MyResourceFileReader().readFile(path);
         initProductions(content);
+    }
+
+    List<Production> getProductions() {
+        return productions;
+    }
+
+    Map<String, ValidSign> getValidSignMap() {
+        return validSignMap;
     }
 
     /**
@@ -58,7 +82,8 @@ class YaccFileHandler {
                 String[] rightParts = parts[1].trim().split(" ");
 
                 // 增加 map 定义
-                if (!isNonTerminal(leftString)) throw new YaccFileInputException(leftString + " 不是全大写，不符合定义");
+                if (isTerminal(leftString))
+                    throw new YaccFileInputException(leftString + " 是一个定义的终结词素，不能作为产生式的左部");
                 validSignMap.putIfAbsent(leftString, new NonTerminal(leftString));
                 addVSMap(rightParts);
 
@@ -91,34 +116,23 @@ class YaccFileHandler {
     }
 
     /**
-     * 含有大写字母的都是非终结符，只有全小写才是终结符
-     */
-    private boolean isNonTerminal(String s) {
-        for (char c : s.toCharArray()) {
-            if (Character.isUpperCase(c)) return true;
-        }
-        return false;
-    }
-
-    /**
      * 在 map 中 加入 parts 中没有的对象
      */
     private void addVSMap(String[] parts) {
         for (String temp : parts) {
-            if (isNonTerminal(temp)) {
-                validSignMap.putIfAbsent(temp, new NonTerminal(temp));
-            } else {
+            if (isTerminal(temp)) {
                 validSignMap.putIfAbsent(temp, new Terminal(temp));
+            } else {
+                validSignMap.putIfAbsent(temp, new NonTerminal(temp));
             }
         }
     }
 
-    List<Production> getProductions() {
-        return productions;
-    }
-
-    Map<String, ValidSign> getValidSignMap() {
-        return validSignMap;
+    /**
+     * 出现在 .l 文件模式定义里的即是终结符，否则即为非终结符
+     */
+    private boolean isTerminal(String s) {
+        return allPattern.contains(s);
     }
 
     /**

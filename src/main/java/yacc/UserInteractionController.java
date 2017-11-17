@@ -1,5 +1,7 @@
 package yacc;
 
+import entities.Production;
+import utilities.ActionType;
 import utilities.UserOutputController;
 import yacc.entities.Action;
 
@@ -14,9 +16,15 @@ import java.util.List;
 public class UserInteractionController {
 
     /**
+     * 输入的产生式
+     */
+    private List<Production> productions;
+
+    /**
      * 输出所有的归约序列
      */
-    public void showAllReductions(List<Action> actions) {
+    public void showAllReductions(List<Action> actions, List<Production> productions) {
+        this.productions = productions;
         String output = getReductionOutput(actions);
 
         UserOutputController.showInConsole(output);
@@ -32,7 +40,14 @@ public class UserInteractionController {
         sb.append("-------------------\n");
 
         for (Action action : actions) {
-            sb.append(action.toString()).append("\n");
+            if (action.getType() == ActionType.SHIFT) {
+                sb.append(action.toString());
+            } else if (action.getType() == ActionType.REDUCTION) {
+                sb.append(action.getType()).append(" ").append(productions.get(action.getOperand()).toSimpleString());
+            } else if (action.getType() == ActionType.ACCEPT) {
+                sb.append(action.getType());
+            }
+            sb.append("\n");
         }
 
         sb.append("-------------------");

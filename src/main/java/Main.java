@@ -28,12 +28,12 @@ public class Main {
         logger.info("词法分析结束");
 
         // 文法分析
-        SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer();
+        SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer(lexicalAnalyzer);
         List<Action> reductions = syntaxAnalyzer.analyze(inputTokens);
         logger.info("文法分析结束");
 
         // 输出结果
         UserInteractionController userInteractionController = new UserInteractionController();
-        userInteractionController.showAllReductions(reductions);
+        userInteractionController.showAllReductions(reductions, syntaxAnalyzer.getProductions());
     }
 }

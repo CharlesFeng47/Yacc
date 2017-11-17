@@ -224,7 +224,7 @@ public class DFA_Handler {
         }
 
         // 打印真正 DFA 的状态对应表
-        logger.info("NFA 经过子集构造法完成后真正的状态转换表");
+        logger.debug("NFA 经过子集构造法完成后真正的状态转换表");
         showDFATrans(move);
 
         curStates.sort(comparator);
@@ -467,7 +467,7 @@ public class DFA_Handler {
         for (Map.Entry<FA_State, Map<Character, FA_State>> entryState : move.entrySet()) {
             FA_State start = entryState.getKey();
             for (Map.Entry<Character, FA_State> entryEdge : entryState.getValue().entrySet()) {
-                logger.info(start.getStateID() + " through " + entryEdge.getKey() + " to " + entryEdge.getValue().getStateID());
+                logger.debug(start.getStateID() + " through " + entryEdge.getKey() + " to " + entryEdge.getValue().getStateID());
             }
         }
     }

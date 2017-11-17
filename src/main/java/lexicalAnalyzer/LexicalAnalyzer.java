@@ -24,7 +24,16 @@ public class LexicalAnalyzer {
      */
     private List<DFA> allDFAs;
 
+    /**
+     * 所有的模式
+     */
+    private List<String> allPattern;
+
     public LexicalAnalyzer() {
+    }
+
+    public List<String> getAllPattern() {
+        return allPattern;
     }
 
     /**
@@ -36,6 +45,7 @@ public class LexicalAnalyzer {
 
         // 解析 .l 文件，生成词法分析器
         LexFileHandler lexFileHandler = new LexFileHandler();
+        this.allPattern = lexFileHandler.getAllPattern();
         this.allDFAs = lexFileHandler.convertToDFA();
 
         List<Token> resultTokens = new LinkedList<>();
@@ -49,12 +59,12 @@ public class LexicalAnalyzer {
 
 
     /**
-     * 对每一个词素都进行分析
+     * 对每一个词素（用户控制台的输入／文法分析 .y 文件的字符）都进行分析
      *
      * @param lexeme 要分析的词素
      * @return 分析结束之后的的结果词法单元
      */
-    private Token analyze(String lexeme) throws NotMatchingException {
+    public Token analyze(String lexeme) throws NotMatchingException {
         for (DFA curDFA : allDFAs) {
             // 按优先级顺序依次对比，满足了就返回
             if (curDFA.isValid(lexeme))
