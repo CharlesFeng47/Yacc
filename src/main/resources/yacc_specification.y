@@ -1,15 +1,9 @@
-E : T E`
+E : E add T
+    | T
     ;
 
-E` : + T E`
-    | ε
-    ;
-
-T : F T`
-    ;
-
-T` : * F T`
-    | ε
+T : T multiply F
+    | F
     ;
 
 F : ( E )

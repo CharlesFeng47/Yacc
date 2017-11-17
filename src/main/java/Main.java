@@ -1,6 +1,13 @@
+import exceptions.ParsingTableConflictException;
+import exceptions.SyntaxException;
+import exceptions.YaccFileInputException;
 import lexicalAnalyzer.LexicalAnalyzer;
 import lexicalAnalyzer.exceptions.NotMatchingException;
 import lexicalAnalyzer.lex.entity.Token;
+import org.apache.log4j.Logger;
+import yacc.SyntaxAnalyzer;
+import yacc.UserInteractionController;
+import yacc.entities.Action;
 
 import java.util.List;
 
@@ -11,11 +18,22 @@ import java.util.List;
  */
 public class Main {
 
-    public static void main(String[] args) throws NotMatchingException {
+    private static final Logger logger = Logger.getLogger(Main.class);
+
+    public static void main(String[] args) throws NotMatchingException, SyntaxException, YaccFileInputException, ParsingTableConflictException {
+
+        // 词法分析
         LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer();
-        List<Token> inputToken = lexicalAnalyzer.lexicalAnalyze();
+        List<Token> inputTokens = lexicalAnalyzer.lexicalAnalyze();
+        logger.info("词法分析结束");
 
+        // 文法分析
+        SyntaxAnalyzer syntaxAnalyzer = new SyntaxAnalyzer();
+        List<Action> reductions = syntaxAnalyzer.analyze(inputTokens);
+        logger.info("文法分析结束");
 
-
+        // 输出结果
+        UserInteractionController userInteractionController = new UserInteractionController();
+        userInteractionController.showAllReductions(reductions);
     }
 }

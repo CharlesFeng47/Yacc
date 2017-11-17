@@ -19,10 +19,10 @@ import java.util.Stack;
  * <p>
  * 用模拟器表示 SLR 的文法分析
  */
-public class Monitor {
+class Monitor {
 
     /**
-     * 文法的产生式
+     * 文法的产生式，在模拟器中用于查询被归约的产生式
      */
     private List<Production> productions;
 
@@ -31,7 +31,7 @@ public class Monitor {
      */
     private ParsingTable pt;
 
-    public Monitor(List<Production> productions, ParsingTable pt) {
+    Monitor(List<Production> productions, ParsingTable pt) {
         this.productions = productions;
         this.pt = pt;
     }
@@ -39,16 +39,19 @@ public class Monitor {
     /**
      * 对输入 input 进行词法分析
      */
-    public List<Action> syntaxAnalyze(final List<Terminal> input) throws SyntaxException {
+    List<Action> syntaxAnalyze(final List<Terminal> input) throws SyntaxException {
         List<Action> result = new LinkedList<>();
 
         Stack<Integer> stateStack = new Stack<>();
         Stack<ValidSign> symbolStack = new Stack<>();
 
         stateStack.push(0);
-        symbolStack.push(new Terminal("$"));
+        symbolStack.push(input.get(0));
 
-        for (Terminal t : input) {
+        // 已压入了 $
+        int readerIndex = 1;
+        while (true) {
+            Terminal t = input.get(readerIndex);
             int curState = stateStack.peek();
             Action curAction = pt.getActionMap().get(curState).get(t);
             if (curAction == null) {
@@ -60,6 +63,7 @@ public class Monitor {
                 if (curAction.getType() == ActionType.SHIFT) {
                     stateStack.push(curAction.getOperand());
                     symbolStack.push(t);
+                    readerIndex++;
                 }
 
                 // 归约
@@ -71,7 +75,7 @@ public class Monitor {
                     for (int j = 0; j < reduceProductionSize; j++) {
                         ValidSign productionVS = reduceProduction.getRight().get(reduceProductionSize - 1 - j);
                         ValidSign symbolStackTop = symbolStack.peek();
-                        if (symbolStackTop.getRepresentation().equals(productionVS.getRepresentation())) {
+                        if (symbolStackTop.equals(productionVS)) {
                             stateStack.pop();
                             symbolStack.pop();
                         }
@@ -93,13 +97,12 @@ public class Monitor {
                 // 接受
                 else if (curAction.getType() == ActionType.ACCEPT) {
                     result.add(curAction);
-                    return result;
-
+                    break;
                 }
             }
 
         }
 
-        throw new SyntaxException("未到达 ACCEPT 状态");
+        return result;
     }
 }

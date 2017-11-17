@@ -19,7 +19,7 @@ import java.util.Map;
  * <p>
  * 处理 Yacc .y 文件中的数据（只含有文法产生式）
  */
-public class YaccFileHandler {
+class YaccFileHandler {
 
     /**
      * .y 文件的路径
@@ -36,7 +36,7 @@ public class YaccFileHandler {
      */
     private Map<String, ValidSign> validSignMap;
 
-    public YaccFileHandler() throws YaccFileInputException {
+    YaccFileHandler() throws YaccFileInputException {
         // 从 .y 文件中读取数据
         List<String> content = new MyResourceFileReader().readFile(path);
         initProductions(content);
@@ -86,6 +86,9 @@ public class YaccFileHandler {
                 left = null;
             }
         }
+
+        // 加入结尾 $ 的映射
+        validSignMap.put("$", new Terminal("$"));
     }
 
     /**
@@ -111,12 +114,20 @@ public class YaccFileHandler {
         }
     }
 
+    List<Production> getProductions() {
+        return productions;
+    }
+
+    Map<String, ValidSign> getValidSignMap() {
+        return validSignMap;
+    }
 
     /**
      * .y 文件对应的预测分析表
      */
-    public ParsingTable convertToPT() throws ParsingTableConflictException {
-        ParsingTableConstructor constructor = new ParsingTableConstructor(productions);
+    ParsingTable convertToPT() throws ParsingTableConflictException {
+        ParsingTableConstructor constructor = new ParsingTableConstructor(productions,
+                validSignMap.values(), (Terminal) validSignMap.get("$"));
         return constructor.getParsingTable();
     }
 

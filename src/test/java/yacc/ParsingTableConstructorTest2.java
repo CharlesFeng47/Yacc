@@ -8,8 +8,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * ParsingTableConstructor Tester.
@@ -22,9 +21,12 @@ public class ParsingTableConstructorTest2 {
 
     private List<Production> productions;
 
+    private Map<String, ValidSign> validSignMap;
+
     @Before
     public void before() throws Exception {
         productions = new LinkedList<>();
+        validSignMap = new HashMap<>();
 
         Terminal t1 = new Terminal("+");
         Terminal t2 = new Terminal("*");
@@ -96,6 +98,21 @@ public class ParsingTableConstructorTest2 {
         productions.add(p6);
         productions.add(p7);
         productions.add(p8);
+
+
+        validSignMap.put("+", t1);
+        validSignMap.put("*", t2);
+        validSignMap.put("(", t3);
+        validSignMap.put(")", t4);
+        validSignMap.put("id", t5);
+        validSignMap.put("ε", t6);
+        validSignMap.put("E", n1);
+        validSignMap.put("E`", n2);
+        validSignMap.put("T", n3);
+        validSignMap.put("T`", n4);
+        validSignMap.put("F", n5);
+        validSignMap.put("$", new Terminal("$"));
+
     }
 
     @After
@@ -107,7 +124,7 @@ public class ParsingTableConstructorTest2 {
      */
     @Test
     public void testGetParsingTable() throws Exception {
-        new ParsingTableConstructor(productions);
+        new ParsingTableConstructor(productions, validSignMap.values(), (Terminal) validSignMap.get("$"));
     }
 
     /**

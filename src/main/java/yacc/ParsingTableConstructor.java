@@ -15,17 +15,14 @@ import utilities.FirstOrFollowCycle;
 import yacc.entities.Action;
 import yacc.entities.ParsingTable;
 
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by cuihua on 2017/11/14.
  * <p>
  * 构造此文法的文法分析表
  */
-public class ParsingTableConstructor {
+class ParsingTableConstructor {
 
     private static final Logger logger = Logger.getLogger(ParsingTableConstructor.class);
 
@@ -57,10 +54,10 @@ public class ParsingTableConstructor {
     /**
      * 读头末尾、开始产生式的终结符
      */
-    private static final Terminal finalTerminal = new Terminal("$");
+    private final Terminal finalTerminal;
 
 
-    public ParsingTableConstructor(List<Production> productions) {
+    ParsingTableConstructor(List<Production> productions, Collection<ValidSign> values, Terminal finalTerminal) {
         if (!isSingleStartLeft(productions)) {
             // 新增开始符 & ，统领全局
             NonTerminal newStartProLeft = new NonTerminal("&");
@@ -78,7 +75,8 @@ public class ParsingTableConstructor {
             simpleProductions.add(p.toSimpleString());
         }
 
-        validSigns = getAllValidSigns();
+        validSigns = new LinkedList<>(values);
+        this.finalTerminal
         initMap();
     }
 
@@ -95,20 +93,6 @@ public class ParsingTableConstructor {
         }
 
         return count == 1;
-    }
-
-    /**
-     * 获取所有的合法字符，相当于字母表
-     */
-    private List<ValidSign> getAllValidSigns() {
-        List<ValidSign> result = new LinkedList<>();
-        for (Production p : productions) {
-            for (ValidSign vs : p.getRight()) {
-                if (!result.contains(vs)) result.add(vs);
-            }
-        }
-        logger.debug("ValidSigns Size：" + result.size());
-        return result;
     }
 
     /**
@@ -555,7 +539,7 @@ public class ParsingTableConstructor {
     /**
      * 基于使用的产生式生成预测分析表
      */
-    public ParsingTable getParsingTable() throws ParsingTableConflictException {
+    ParsingTable getParsingTable() throws ParsingTableConflictException {
         FA_Constructor faConstructor = new FA_Constructor(productions, validSigns);
         LayeredFA fa = faConstructor.parse();
 

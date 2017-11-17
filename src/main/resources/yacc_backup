@@ -19,6 +19,6 @@ F : ( E )
 -------------------------
 S : i S e S
     | i S
-    | S ; S
+    | S seperator S
     | a
     ;

@@ -162,9 +162,9 @@ public class FA_Constructor {
             }
         }
 
-        logger.info("move 后继中产生式个数：" + resultProduction.size());
+        logger.debug("move 后继中产生式个数：" + resultProduction.size());
         for (Production p : resultProduction) {
-            logger.info(p.toString());
+            logger.debug(p.toString());
         }
         return resultProduction;
     }

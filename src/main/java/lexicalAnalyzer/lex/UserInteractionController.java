@@ -1,6 +1,7 @@
 package lexicalAnalyzer.lex;
 
 import lexicalAnalyzer.lex.entity.Token;
+import utilities.UserOutputController;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -41,12 +42,12 @@ public class UserInteractionController {
      */
     public void showAllTokens(List<Token> tokens) {
         String s = getTokenOutput(tokens);
-        showInConsole(s);
-        try {
-            showInFile(s);
-        } catch (IOException e) {
-            System.out.println("Token 序列输出到文件：失败！");
-        }
+        UserOutputController.showInConsole(s);
+//        try {
+//            showInFile(s);
+//        } catch (IOException e) {
+//            System.out.println("Token 序列输出到文件：失败！");
+//        }
     }
 
     /**
@@ -65,26 +66,5 @@ public class UserInteractionController {
         }
         sb.append("-------------------");
         return sb.toString();
-    }
-
-    /**
-     * 控制台输出
-     */
-    private void showInConsole(String s) {
-        System.out.println(s);
-    }
-
-    /**
-     * 文件输出
-     */
-    private void showInFile(String s) throws IOException {
-        File file = new File(System.getProperty("user.dir") + " "+ LocalDateTime.now() + ".txt");
-        if (file.createNewFile()) {
-            FileWriter writer = new FileWriter(file);
-            writer.write(s);
-            writer.flush();
-            writer.close();
-        }
-
     }
 }
