@@ -51,9 +51,11 @@ class Monitor {
         // 已压入了 $
         int readerIndex = 1;
         while (true) {
+            assert readerIndex < input.size();
             Terminal t = input.get(readerIndex);
             int curState = stateStack.peek();
             Action curAction = pt.getActionMap().get(curState).get(t);
+
             if (curAction == null) {
                 throw new SyntaxException("ERROR 文法分析表中对应表格为空");
             } else {
@@ -96,7 +98,6 @@ class Monitor {
 
                 // 接受
                 else if (curAction.getType() == ActionType.ACCEPT) {
-                    result.add(curAction);
                     break;
                 }
             }

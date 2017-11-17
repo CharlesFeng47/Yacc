@@ -75,8 +75,8 @@ class ParsingTableConstructor {
             simpleProductions.add(p.toSimpleString());
         }
 
-        validSigns = new LinkedList<>(values);
-        this.finalTerminal
+        this.validSigns = new LinkedList<>(values);
+        this.finalTerminal = finalTerminal;
         initMap();
     }
 

@@ -9,10 +9,7 @@ import exceptions.YaccFileInputException;
 import utilities.MyResourceFileReader;
 import yacc.entities.ParsingTable;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by cuihua on 2017/11/16.
@@ -47,7 +44,9 @@ class YaccFileHandler {
      */
     private void initProductions(List<String> yContent) throws YaccFileInputException {
         productions = new LinkedList<>();
-        validSignMap = new HashMap<>();
+
+        // 保证后续传参的 value set 未被 hash 过
+        validSignMap = new LinkedHashMap<>();
 
         NonTerminal left = null;
         for (String s : yContent) {
