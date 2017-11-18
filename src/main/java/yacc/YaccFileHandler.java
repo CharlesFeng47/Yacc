@@ -7,12 +7,13 @@ import entities.ValidSign;
 import exceptions.ParsingTableConflictException;
 import exceptions.YaccFileInputException;
 import lexicalAnalyzer.LexicalAnalyzer;
-import lexicalAnalyzer.exceptions.NotMatchingException;
-import lexicalAnalyzer.lex.entity.Token;
 import utilities.MyResourceFileReader;
 import yacc.entities.ParsingTable;
 
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by cuihua on 2017/11/16.
@@ -37,17 +38,11 @@ class YaccFileHandler {
     private Map<String, ValidSign> validSignMap;
 
     /**
-     * .l 文件生成的词法分析器
-     */
-    private LexicalAnalyzer lexicalAnalyzer;
-
-    /**
      * .l  文件生成的所有模式
      */
     private List<String> allPattern;
 
     YaccFileHandler(LexicalAnalyzer lexicalAnalyzer) throws YaccFileInputException {
-        this.lexicalAnalyzer = lexicalAnalyzer;
         this.allPattern = lexicalAnalyzer.getAllPattern();
 
         // 从 .y 文件中读取数据

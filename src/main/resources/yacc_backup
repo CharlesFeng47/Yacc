@@ -22,3 +22,24 @@ S : i S e S
     | S seperator S
     | a
     ;
+
+-------------------------
+E : E addorminus T
+    | T
+    ;
+
+T : T multiply F
+    | F
+    ;
+
+F : leftParentheses E rightParentheses
+    | id
+    ;
+
+-------------------------
+S : S A
+    | A
+    ;
+
+A : test
+    ;

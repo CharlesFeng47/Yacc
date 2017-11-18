@@ -29,15 +29,7 @@ public class FA_Edge {
         return label;
     }
 
-    public void setLabel(ValidSign label) {
-        this.label = label;
-    }
-
     public FA_State getPointTo() {
         return pointTo;
-    }
-
-    public void setPointTo(FA_State pointTo) {
-        this.pointTo = pointTo;
     }
 }

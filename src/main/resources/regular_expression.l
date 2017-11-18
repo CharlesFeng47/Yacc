@@ -1,3 +1,7 @@
+epsilon ε
+testC c
+testB b
+testA a
 separator \,|;
 comparator <|>|(<=)|(>=)|(==)|(!=)
 addorminus \+|\-
