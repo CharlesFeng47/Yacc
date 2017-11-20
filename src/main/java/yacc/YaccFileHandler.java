@@ -131,7 +131,7 @@ class YaccFileHandler {
     }
 
     /**
-     * .y 文件对应的预测分析表
+     * .y 文件对应的分析表
      */
     ParsingTable convertToPT() throws ParsingTableConflictException {
         ParsingTableConstructor constructor = new ParsingTableConstructor(productions,

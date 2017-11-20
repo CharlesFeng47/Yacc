@@ -49,11 +49,11 @@ public class SyntaxAnalyzer {
      * 文法分析的控制器
      */
     public List<Action> analyze(List<Token> inputTokens) throws YaccFileInputException, ParsingTableConflictException, SyntaxException {
-        // 从 .y 文件中获取PPT
+        // 从 .y 文件中获取 PT
         YaccFileHandler handler = new YaccFileHandler(lexicalAnalyzer);
         this.productions = handler.getProductions();
         ParsingTable pt = handler.convertToPT();
-        logger.info("预测分析表 PPT 已生成结束");
+        logger.info("文法分析表 PT 已生成结束");
 
         Map<String, ValidSign> vsMap = handler.getValidSignMap();
         // 用户输入转换得到的词法单元 Token 序列 => 文法分析所需要的终结符 Terminal 序列

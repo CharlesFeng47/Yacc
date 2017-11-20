@@ -1,14 +1,6 @@
-epsilon ε
-testC c
-testB b
-testA a
-separator \,|;
-comparator <|>|(<=)|(>=)|(==)|(!=)
 addorminus \+|\-
 multiply \*
 divide /
 leftParentheses \(
 rightParentheses \)
-assignment =
-digit [0-9]
 id [a-z][_a-z0-9]*

@@ -1,11 +1,11 @@
-S : A B
-    | testC
+E : E addorminus T
+    | T
     ;
 
-A : testA
-    | epsilon
+T : T multiply F
+    | F
     ;
 
-B : testB S
-    | epsilon
+F : leftParentheses E rightParentheses
+    | id
     ;

@@ -27,7 +27,7 @@ class Monitor {
     private List<Production> productions;
 
     /**
-     * 文法的预测分析表
+     * 文法分析表
      */
     private ParsingTable pt;
 
@@ -57,7 +57,7 @@ class Monitor {
             Action curAction = pt.getActionMap().get(curState).get(t);
 
             if (curAction == null) {
-                throw new SyntaxException("ERROR 文法分析表中对应表格为空");
+                throw new SyntaxException("ERROR 文法分析表中对应表格为空，文法分析错误。");
             } else {
                 result.add(curAction);
 

@@ -537,7 +537,7 @@ class ParsingTableConstructor {
     }
 
     /**
-     * 基于使用的产生式生成预测分析表
+     * 基于使用的产生式生成文法分析表
      */
     ParsingTable getParsingTable() throws ParsingTableConflictException {
         FA_Constructor faConstructor = new FA_Constructor(productions, validSigns);
