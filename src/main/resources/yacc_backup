@@ -1,3 +1,14 @@
+S : A B
+    | testC
+    ;
+
+A : testA
+    ;
+
+B : testB S
+    ;
+
+-------------------------
 S : i S e S
     | i S
     | S seperator S
